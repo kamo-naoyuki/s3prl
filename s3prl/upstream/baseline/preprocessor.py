@@ -94,6 +94,7 @@ class OnlinePreprocessor(torch.nn.Module):
             "pad_mode": "reflect",
             "normalized": False,
             "onesided": True,
+            "return_complex": False,
         }
         # stft_args: same default values as torchaudio.transforms.Spectrogram & librosa.core.spectrum._spectrogram
         self._stft = partial(torch.stft, **self._win_args, **self._stft_args)
@@ -236,6 +237,7 @@ class OnlinePreprocessor(torch.nn.Module):
             complxs = complxs.view(*shape[:-1], -1, 2).transpose(-2, -3).contiguous()
         # complxs: (*, n_freq, max_feat_len, 2)
 
+        complxs = torch.view_as_complex(complxs)
         return self._istft(complxs, window=self._window)
         # return: (*, max_wav_len)
 
