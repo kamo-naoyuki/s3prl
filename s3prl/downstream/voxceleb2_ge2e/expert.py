@@ -111,8 +111,8 @@ class DownstreamExpert(nn.Module):
                 the loss to be optimized, should not be detached
         """
         features_pad = pad_sequence(features, batch_first=True)
-        
-        attention_mask = [torch.ones((feature.shape[0])) for feature in features] 
+
+        attention_mask = [torch.ones((feature.shape[0])) for feature in features]
 
         attention_mask_pad = pad_sequence(attention_mask,batch_first=True)
 
@@ -121,16 +121,16 @@ class DownstreamExpert(nn.Module):
         features_pad = self.connector(features_pad)
         agg_vec = self.model(features_pad, attention_mask_pad.cuda())
 
-        # normalize to unit vector 
+        # normalize to unit vector
         agg_vec = agg_vec / torch.norm(agg_vec, dim=-1).unsqueeze(-1)
 
         if self.training:
-            
+
             GE2E_matrix = agg_vec.reshape(-1, self.train_dataset.utter_number, agg_vec.shape[-1])
             loss = self.objective(GE2E_matrix)
-            
+
             return loss
-        
+
         else:
             vec1, vec2 = self.separate_data(agg_vec, labels)
             scores = self.score_fn(vec1,vec2).squeeze().cpu().detach().tolist()
@@ -176,11 +176,11 @@ class DownstreamExpert(nn.Module):
                 records['EER'],
                 global_step=global_step
             )
-        
+
     def separate_data(self, agg_vec, ylabel):
 
-        total_num = len(ylabel) 
+        total_num = len(ylabel)
         feature1 = agg_vec[:total_num]
         feature2 = agg_vec[total_num:]
-        
+
         return feature1, feature2

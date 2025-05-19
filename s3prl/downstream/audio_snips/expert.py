@@ -25,7 +25,7 @@ class DownstreamExpert(nn.Module):
         self.upstream_dim = upstream_dim
         self.datarc = downstream_expert['datarc']
         self.modelrc = downstream_expert['modelrc']
-        
+
         self.get_dataset()
 
         self.train_dataset = []
@@ -95,8 +95,8 @@ class DownstreamExpert(nn.Module):
     # Interface
     def forward(self, mode, features, labels, records=None, **kwargs):
         features_pad = pad_sequence(features, batch_first=True)
-        
-        attention_mask = [torch.ones((feature.shape[0])) for feature in features] 
+
+        attention_mask = [torch.ones((feature.shape[0])) for feature in features]
 
         attention_mask_pad = pad_sequence(attention_mask,batch_first=True)
 
@@ -108,7 +108,7 @@ class DownstreamExpert(nn.Module):
         intent_loss = 0
         start_index = 0
         predicted_intent = []
-        
+
         labels = torch.stack(labels).to(features_pad.device)
         for slot in range(len(self.values_per_slot)):
             end_index = start_index + self.values_per_slot[slot]

@@ -43,7 +43,7 @@ def main():
         print('Invalid path for the preprocessed timit dataset: ', INPUT_PATH)
         print('Please run \'preprocess_timit.py\' first!')
         exit()
-        
+
     if not os.path.isdir(SOURCE_DIR):
         print('Invalid path for the source directory: ', SOURCE_DIR)
         print('Please read the Wiki page for instructions!')
@@ -72,11 +72,11 @@ def main():
     # filter all input with kaldi generated files
     for s in OUTPUT_SETS:
         if not os.path.isdir(SOURCE_DIR):
-            raise NotADirectoryError('Source directory does not exist!', SOURCE_DIR)    
-        
+            raise NotADirectoryError('Source directory does not exist!', SOURCE_DIR)
+
         if not os.path.isdir(OUTPUT_PATH + '/' + str(s)):
             os.mkdir(OUTPUT_PATH + '/' + str(s))
-        
+
         # read train / dev / test from the kaldi generated directory
         partial_outputs = {}
         with open(os.path.join(SOURCE_DIR, s + '/feats.scp'), 'r') as f:
@@ -90,11 +90,10 @@ def main():
         # writiing output with kaldi_io
         ark_scp_output = 'ark:| copy-feats --compress=true ark:- ark,scp:{}/raw_mel_{}.ark,{}/{}/feats.scp'.format(OUTPUT_PATH, str(s), OUTPUT_PATH, str(s))
         with kaldi_io.open_or_fd(ark_scp_output, 'wb') as f:
-            for key, mat in tqdm(partial_outputs.items()): 
+            for key, mat in tqdm(partial_outputs.items()):
                 kaldi_io.write_mat(f, mat, key=key)
 
     print('[TIMIT-to-ARK] - All done, saved at \'' + str(OUTPUT_PATH) + '\' exit.')
 
 if __name__ == '__main__':
     main()
-    

@@ -254,7 +254,7 @@ class RNNCell(nn.Module):
         # Additional projection layer
         if self.proj:
             self.pj = nn.Linear(rnn_out_dim, rnn_out_dim)
-    
+
     def forward(self, input_x, z, c):
 
         # Forward RNN cell
@@ -311,7 +311,7 @@ class Model(nn.Module):
             )
         else:
             raise ValueError("Encoder type not supported.")
-        
+
         # define prenet
         self.prenet = Taco2Prenet(
             idim=output_dim,
@@ -361,7 +361,7 @@ class Model(nn.Module):
             targets: Batch of the sequences of padded target features (B, Lmax, odim).
         """
         B = features.shape[0]
-        
+
         # resample the input features according to resample_ratio
         features = features.permute(0, 2, 1)
         resampled_features = F.interpolate(features, scale_factor = self.resample_ratio)
@@ -373,7 +373,7 @@ class Model(nn.Module):
             encoder_states, lens = self.encoder(resampled_features, lens) # (B, Lmax, hidden_dim)
         elif self.encoder_type == "ffn":
             encoder_states = self.encoder(resampled_features) # (B, Lmax, hidden_dim)
-        
+
         # decoder: LSTMP layers & projection
         if self.ar:
             if targets is not None:
@@ -403,7 +403,7 @@ class Model(nn.Module):
             predicted = encoder_states
             for i, lstmp in enumerate(self.lstmps):
                 predicted, lens = lstmp(predicted, lens)
-        
+
             # projection layer
             predicted = self.proj(predicted)
 

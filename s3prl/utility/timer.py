@@ -11,7 +11,7 @@ class Timer():
 
     def start(self):
         self.start_time = time.time()
-    
+
 
     def end(self):
         frameinfo = inspect.getouterframes( inspect.currentframe() )[1]

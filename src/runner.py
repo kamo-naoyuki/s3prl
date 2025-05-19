@@ -29,9 +29,9 @@ from utility.helper import parse_prune_heads
 # RUNNER CONFIGURATIONS #
 #########################
 def get_runner_args():
-    
+
     parser = argparse.ArgumentParser(description='Argument Parser for the S3PLR project.')
-    
+
     # setting
     parser.add_argument('--config', default='../config/deprecated_runner/tera_libri_fmllrBase_pretrain,yaml', type=str, help='Path to experiment config.', required=False)
     parser.add_argument('--seed', default=1337, type=int, help='Random seed for reproducable results.', required=False)
@@ -53,7 +53,7 @@ def get_runner_args():
     parser.add_argument('--run_apc', action='store_true', help='train and test the downstream tasks using apc representations.')
     parser.add_argument('--fine_tune', action='store_true', help='fine tune the transformer model with downstream task.')
     parser.add_argument('--plot', action='store_true', help='Plot model generated results during testing.')
-    
+
     # phone task
     parser.add_argument('--train_phone', action='store_true', help='Train the phone classifier on mel or speech representations.')
     parser.add_argument('--test_phone', action='store_true', help='Test mel or speech representations using the trained phone classifier.')
@@ -65,11 +65,11 @@ def get_runner_args():
     # sentiment task
     parser.add_argument('--train_sentiment', action='store_true', help='Train the sentiment classifier on mel or speech representations.')
     parser.add_argument('--test_sentiment', action='store_true', help='Test mel or speech representations using the trained sentiment classifier.')
-    
+
     # speaker verification task
     parser.add_argument('--train_speaker', action='store_true', help='Train the speaker classifier on mel or speech representations.')
     parser.add_argument('--test_speaker', action='store_true', help='Test mel or speech representations using the trained speaker classifier.')
-    
+
     # Options
     parser.add_argument('--with_head', action='store_true', help='inference with the spectrogram head, the model outputs spectrogram.')
     parser.add_argument('--plot_attention', action='store_true', help='plot attention')
@@ -85,7 +85,7 @@ def get_runner_args():
     setattr(args,'verbose', not args.no_msg)
     config = yaml.load(open(args.config,'r'), Loader=yaml.FullLoader)
     parse_prune_heads(config)
-    
+
     return config, args
 
 
@@ -93,10 +93,10 @@ def get_runner_args():
 # MAIN #
 ########
 def main():
-    
+
     # get arguments
     config, args = get_runner_args()
-    
+
     # Fix seed and make backends deterministic
     random.seed(args.seed)
     np.random.seed(args.seed)
@@ -122,7 +122,7 @@ def main():
         trainer.test_reconstruct()
 
     ##################################################################################
-    
+
     # Train Phone Task
     elif args.train_phone:
         from downstream.solver import Downstream_Trainer
@@ -165,7 +165,7 @@ def main():
         tester.set_model(inference=True)
         tester.exec()
 
-    ##################################################################################    
+    ##################################################################################
 
     # Train Sentiment Task
     elif args.train_sentiment:
@@ -188,7 +188,7 @@ def main():
         tester.exec()
 
     ##################################################################################
-    
+
     # Train Speaker Task
     elif args.train_speaker:
         from downstream.solver import Downstream_Trainer

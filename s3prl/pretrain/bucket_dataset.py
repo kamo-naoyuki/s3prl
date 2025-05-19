@@ -25,18 +25,18 @@ HALF_BATCHSIZE_TIME = 99999
 ################
 class FeatDataset(Dataset):
     """Base On-the-fly feature dataset by Andy T. Liu"""
-    
-    def __init__(self, extracter, task_config, bucket_size, file_path, sets, 
+
+    def __init__(self, extracter, task_config, bucket_size, file_path, sets,
                  max_timestep=0, libri_root=None, **kwargs):
         super(FeatDataset, self).__init__()
 
         self.extracter = extracter
         self.task_config = task_config
         self.libri_root = libri_root
-        self.sample_length = task_config['sequence_length'] 
+        self.sample_length = task_config['sequence_length']
         if self.sample_length > 0:
             print('[Dataset] - Sampling random segments for training, sample length:', self.sample_length)
-        
+
         # Read file
         self.root = file_path
         tables = [pd.read_csv(os.path.join(file_path, s + '.csv')) for s in sets]
@@ -62,7 +62,7 @@ class FeatDataset(Dataset):
         for x, x_len in zip(X, X_lens):
             batch_x.append(x)
             batch_len.append(x_len)
-            
+
             # Fill in batch_x until batch is full
             if len(batch_x) == bucket_size:
                 # Half the batch size if seq too long
@@ -72,9 +72,9 @@ class FeatDataset(Dataset):
                 else:
                     self.X.append(batch_x)
                 batch_x, batch_len = [], []
-        
+
         # Gather the last batch
-        if len(batch_x) > 1: 
+        if len(batch_x) > 1:
             self.X.append(batch_x)
 
     def _sample(self, x):

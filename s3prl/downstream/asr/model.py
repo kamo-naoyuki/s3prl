@@ -18,7 +18,7 @@ def downsample(x, x_len, sample_rate, sample_style):
             timestep / sample_rate), feature_dim * sample_rate)
     else:
         raise NotImplementedError
-    
+
     return x, x_len
 
 
@@ -113,7 +113,7 @@ class RNNs(nn.Module):
             latest_size = rnn_layer.out_dim
 
         self.linear = nn.Linear(latest_size, output_size)
-    
+
     def forward(self, x, x_len):
         r"""
         Args:
@@ -130,7 +130,7 @@ class RNNs(nn.Module):
             x, x_len = rnn(x, x_len)
 
         logits = self.linear(x)
-        return logits, x_len        
+        return logits, x_len
 
 
 class Wav2Letter(nn.Module):

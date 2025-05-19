@@ -76,7 +76,7 @@ def get_pretrain_args():
             ckpt_pth = ckpt_pths[-1]
         else:
             ckpt_pth = args.past_exp
-        
+
         print(f'[Runner] - Resume from {ckpt_pth}')
 
         # load checkpoint
@@ -114,7 +114,7 @@ def get_pretrain_args():
             copyfile(args.config, f'{args.expdir}/config_runner.yaml')
         else:
             raise FileNotFoundError('Wrong file path for runner config.')
-        
+
         if args.upstream_config is None:
             default_upstream_config = f'pretrain/{upstream_dirs[0]}/config_model.yaml'
             assert os.path.isfile(default_upstream_config)

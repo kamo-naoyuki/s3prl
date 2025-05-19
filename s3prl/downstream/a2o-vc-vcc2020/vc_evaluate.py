@@ -138,7 +138,7 @@ def extfrm(data, npow, power_threshold=-20):
 def world_extract(x, fs, f0min, f0max):
     # scale from [-1, 1] to [-32768, 32767]
     x = x * np.iinfo(np.int16).max
-    
+
     x = np.array(x, dtype=np.float64)
     x = low_cut_filter(x, fs)
 
@@ -214,13 +214,13 @@ def calculate_mcd_f0(x, y, fs, f0min, f0max):
 ################################################################################
 
 # The follow section is related to the calculation of ASR-based metrics
-# Reference: https://github.com/tzuhsien/Voice-conversion-evaluation/blob/master/metrics/character_error_rate/inference.py 
+# Reference: https://github.com/tzuhsien/Voice-conversion-evaluation/blob/master/metrics/character_error_rate/inference.py
 
 import editdistance as ed
 import jiwer
 import torch
 from transformers import Wav2Vec2ForCTC, Wav2Vec2Tokenizer, Wav2Vec2Processor
-    
+
 ASR_PRETRAINED_MODEL = "facebook/wav2vec2-large-960h-lv60-self"
 
 def load_asr_model(device):
@@ -346,7 +346,7 @@ def calculate_threshold(data_root, task, device, query="E3*.wav"):
         spks = SRCSPKS + TRGSPKS_TASK2
     else:
         raise NotImplementedError
-    
+
     encoder = load_asv_model(device)
 
     # 1. extract all embeddings
@@ -364,7 +364,7 @@ def calculate_threshold(data_root, task, device, query="E3*.wav"):
         negative_spks = [_spk for _spk in spks if _spk != spk]
         samples += generate_sample(embeddings, spk, [spk], 1)
         samples += generate_sample(embeddings, spk, negative_spks, 0)
-            
+
     # 3. Calculate EER and threshold
     print(f"[INFO]: Number of samples: {len(samples)}")
     scores = [x[0] for x in samples]

@@ -249,7 +249,7 @@ def plot_spectrogram(spec, path):
     plt.colorbar()
     plt.tight_layout()
     plt.savefig(path, dpi=300, format="png")
-    plt.close() 
+    plt.close()
 
 
 ####################

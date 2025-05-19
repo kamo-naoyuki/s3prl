@@ -254,7 +254,7 @@ class RNNCell(nn.Module):
         # Additional projection layer
         if self.proj:
             self.pj = nn.Linear(rnn_out_dim, rnn_out_dim)
-    
+
     def forward(self, input_x, z, c):
 
         # Forward RNN cell
@@ -317,17 +317,17 @@ class Model(nn.Module):
             )
         else:
             raise ValueError("Encoder type not supported.")
-        
+
         # define projection layer
         if self.spk_emb_integration_type == "add":
             self.spk_emb_projection = torch.nn.Linear(spk_emb_dim, hidden_dim)
-        elif self.spk_emb_integration_type == "concat": 
+        elif self.spk_emb_integration_type == "concat":
             self.spk_emb_projection = torch.nn.Linear(
                 hidden_dim + spk_emb_dim, hidden_dim
             )
         else:
             raise ValueError("Integration type not supported.")
-        
+
         # define prenet
         self.prenet = Taco2Prenet(
             idim=output_dim,
@@ -369,7 +369,7 @@ class Model(nn.Module):
 
     def normalize(self, x):
         return (x - self.target_mean) / self.target_scale
-    
+
     def _integrate_with_spk_emb(self, hs, spembs):
         """Integrate speaker embedding with hidden states.
             Args:
@@ -397,7 +397,7 @@ class Model(nn.Module):
             ref_spk_embs: Batch of the sequences of reference speaker embeddings (B, spk_emb_dim).
         """
         B = features.shape[0]
-        
+
         # resample the input features according to resample_ratio
         features = features.permute(0, 2, 1)
         resampled_features = F.interpolate(features, scale_factor = self.resample_ratio)
@@ -412,7 +412,7 @@ class Model(nn.Module):
 
         # inject speaker embeddings
         encoder_states = self._integrate_with_spk_emb(encoder_states, ref_spk_embs)
-        
+
         # decoder: LSTMP layers & projection
         if self.ar:
             if targets is not None:
@@ -442,7 +442,7 @@ class Model(nn.Module):
             predicted = encoder_states
             for i, lstmp in enumerate(self.lstmps):
                 predicted, lens = lstmp(predicted, lens)
-        
+
             # projection layer
             predicted = self.proj(predicted)
 

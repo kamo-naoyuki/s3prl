@@ -148,15 +148,15 @@ class DownstreamExpert(nn.Module):
         if self.modelrc["loss_type"] == "MSE":
             self.objective = MSELoss(self.datarc['num_speakers'], self.modelrc["mask_type"])
         elif self.modelrc["loss_type"] == "SISDR":
-            self.objective = SISDRLoss(self.datarc['num_speakers'], 
-                    n_fft=self.datarc['n_fft'], 
+            self.objective = SISDRLoss(self.datarc['num_speakers'],
+                    n_fft=self.datarc['n_fft'],
                     hop_length=self.upstream_rate,
-                    win_length=self.datarc['win_length'], 
-                    window=self.datarc['window'], 
+                    win_length=self.datarc['win_length'],
+                    window=self.datarc['window'],
                     center=self.datarc['center'])
         else:
             raise ValueError("Loss type not defined.")
-        
+
         self.register_buffer("best_score", torch.ones(1) * -10000)
 
     def _get_train_dataloader(self, dataset):
@@ -217,7 +217,7 @@ class DownstreamExpert(nn.Module):
                 list of utterance names
 
             source_attr:
-                source_attr is a dict containing the STFT information 
+                source_attr is a dict containing the STFT information
                 for the mixture. source_attr['magnitude'] stores the STFT
                 magnitude, source_attr['phase'] stores the STFT phase and
                 source_attr['stft'] stores the raw STFT feature. The shape
@@ -253,7 +253,7 @@ class DownstreamExpert(nn.Module):
             loss:
                 the loss to be optimized, should not be detached
         """
-        
+
         # match the feature length to STFT feature length
         features = match_length(features, feat_length)
         features = pack_sequence(features)
@@ -272,8 +272,8 @@ class DownstreamExpert(nn.Module):
             # reconstruct the signal using iSTFT
             predict_srcs_np = [postprocess(librosa.istft(stft_mat,
                 hop_length=self.upstream_rate,
-                win_length=self.datarc['win_length'], 
-                window=self.datarc['window'], 
+                win_length=self.datarc['win_length'],
+                window=self.datarc['window'],
                 center=self.datarc['center'],
                 length=wav_length[0])) for stft_mat in predict_stfts_np]
             predict_srcs_np = np.stack(predict_srcs_np, 0)

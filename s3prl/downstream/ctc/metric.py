@@ -231,11 +231,11 @@ def slot_edit_f1(hypothesis, groundtruth, loop_over_all_slot, **kwargs):
         all_TPs += slot2F1[slot][0]
         all_FNs += slot2F1[slot][1]
         all_FPs += slot2F1[slot][2]
-    
+
     return (100.0 * 2*all_TPs/(2*all_TPs + all_FPs + all_FNs))
 
 def slot_edit_f1_full(hypothesis, groundtruth, **kwargs):
     return slot_edit_f1(hypothesis, groundtruth, loop_over_all_slot=True, **kwargs)
- 
+
 def slot_edit_f1_part(hypothesis, groundtruth, **kwargs):
     return slot_edit_f1(hypothesis, groundtruth, loop_over_all_slot=False, **kwargs)

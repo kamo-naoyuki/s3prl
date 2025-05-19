@@ -21,7 +21,7 @@ def main():
         raise ValueError("Warning: {} already exists, please check!".format(output_dir))
     else:
         os.makedirs(output_dir)
-    
+
     wav_dir = "{}/wav{}/{}/{}".format(args.src_dir, args.sample_rate, args.mode, args.part)
     assert os.path.exists(wav_dir)
     for cond in ["s1", "s2", "mix_clean", "mix_both", "mix_single", "noise"]:

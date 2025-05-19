@@ -55,7 +55,7 @@ def show(*args, **kwargs):
 def hack_isinstance():
     # Pytorch do not support passing a defaultdict into DDP module
     # https://github.com/pytorch/pytorch/blob/v1.7.1/torch/nn/parallel/scatter_gather.py#L19
-    
+
     # This hack can be removed after torch 1.8.0, where when each DDP process use single GPU
     # (which is the best practice) DDP will not pass args, kwargs into scatter function
     # https://github.com/pytorch/pytorch/blob/v1.7.1/torch/nn/parallel/distributed.py#L617
@@ -138,7 +138,7 @@ def get_transformer_tester(from_path='result/result_transformer/libri_sd1337_fml
     all_states = torch.load(from_path, map_location='cpu')
     config = all_states['Settings']['Config']
     paras = all_states['Settings']['Paras']
-    
+
     # handling older checkpoints
     if not hasattr(paras, 'multi_gpu'):
         setattr(paras, 'multi_gpu', False)

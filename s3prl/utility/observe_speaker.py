@@ -66,7 +66,7 @@ def main():
     speaker2idx = compute_speaker2idx(speakers)
     class_num = len(speaker2idx)
     print('[Dataset] - Possible speaker classes: ', class_num)
-    
+
 
     train = tables.sample(frac=0.9, random_state=20190929) # random state is a seed value
     test = tables.drop(train.index)

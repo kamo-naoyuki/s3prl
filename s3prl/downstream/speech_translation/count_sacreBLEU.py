@@ -31,4 +31,3 @@ if __name__ == '__main__':
     bleu = BLEU()
     score = bleu.corpus_score(hyps, [refs])
     print(score.score)
-            

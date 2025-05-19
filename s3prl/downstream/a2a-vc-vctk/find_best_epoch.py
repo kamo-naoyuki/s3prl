@@ -58,5 +58,5 @@ if __name__ == "__main__":
             result = grep(log_file, "Mean")[0].split("Mean CER, WER, accept rate: ")[1].split(" ")
         scores.append([str(ep)] + result)
     best = min(scores, key=lambda x: -float(x[-1]))
-        
+
     print(f"{args.upstream} {args.num_samples} samples epoch {best[0]} best:", " ".join(best[1:4]), " ".join(best[5:]),)

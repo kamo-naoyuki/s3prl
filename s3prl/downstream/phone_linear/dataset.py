@@ -29,10 +29,10 @@ HALF_BATCHSIZE_TIME = 2000
 # Phone Dataset #
 #################
 class PhoneDataset(Dataset):
-    
+
     def __init__(self, split, bucket_size, libri_root, phone_path, bucket_file, sample_rate=16000, train_dev_seed=1337, **kwargs):
         super(PhoneDataset, self).__init__()
-        
+
         self.libri_root = libri_root
         self.phone_path = phone_path
         self.sample_rate = sample_rate
@@ -43,7 +43,7 @@ class PhoneDataset(Dataset):
         for line in phone_file:
             line = line.strip('\n').split(' ')
             self.Y[line[0]] = [int(p) for p in line[1:]]
-        
+
         if split == 'train' or split == 'dev':
             usage_list = open(os.path.join(phone_path, 'train_split.txt')).readlines()
             random.seed(train_dev_seed)
@@ -71,7 +71,7 @@ class PhoneDataset(Dataset):
             if self._parse_x_name(x) in usage_list:
                 batch_x.append(x)
                 batch_len.append(x_len)
-                
+
                 # Fill in batch_x until batch is full
                 if len(batch_x) == bucket_size:
                     # Half the batch size if seq too long
@@ -81,7 +81,7 @@ class PhoneDataset(Dataset):
                     else:
                         self.X.append(batch_x)
                     batch_x, batch_len = [], []
-        
+
         # Gather the last batch
         if len(batch_x) > 1:
             if self._parse_x_name(x) in usage_list:

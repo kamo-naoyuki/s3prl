@@ -24,7 +24,7 @@ torchaudio.set_audio_backend("sox_io")
 # PREPROCESS CONFIGURATIONS #
 #############################
 def get_preprocess_args():
-    
+
     parser = argparse.ArgumentParser(description='preprocess arguments for any dataset.')
 
     parser.add_argument('-i', '--input_path', default='/livingrooms/public/LibriLight/', type=str, help='Path to your LibriSpeech directory', required=False)
@@ -43,20 +43,20 @@ def get_preprocess_args():
 ##################
 def split_and_save(input_file, current_split, args):
     wav, sr = torchaudio.load(input_file)
-    
+
     # compute the size of each chunk
     chunk_size = args.split_size*sr
     quotient, remainder = divmod(wav.size(1), chunk_size)
     sections = [chunk_size for _ in range(quotient)]
     sections.append(remainder) # the remainder is the last chunk
-    
+
     splitted_wav = torch.split(wav, split_size_or_sections=sections, dim=1)
     check_sum = 0
     for i, w in enumerate(splitted_wav):
         check_sum += w.size(1)
         file_name = os.path.basename(input_file).split('.')[0]
         new_file_name = file_name.replace(file_name, file_name+'-'+str(i))
-        
+
         new_file_path = input_file.replace(current_split, current_split+args.name)
         new_file_path = new_file_path.replace(file_name, new_file_name)
 
@@ -72,7 +72,7 @@ def split_and_save(input_file, current_split, args):
 # GENERATE SPLITS #
 ###################
 def generate_splits(args, tr_set, audio_extension):
-    
+
     for i, s in enumerate(tr_set):
         if os.path.isdir(os.path.join(args.input_path, s.lower())):
             s = s.lower()
@@ -98,7 +98,7 @@ def main():
 
     # get arguments
     args = get_preprocess_args()
-    
+
     if 'librilight' in args.input_path.lower():
         SETS = ['small', 'medium', 'large']
     elif 'librispeech' in args.input_path.lower():
@@ -111,7 +111,7 @@ def main():
     # SETS = ['train', 'dev', 'test']
     # SETS = ['TRAIN', 'TEST']
     # SETS = ['train-clean-100', 'train-clean-360', 'train-other-500', 'dev-clean', 'dev-other', 'test-clean', 'test-other']
-    
+
     # Select data sets
     for idx, s in enumerate(SETS):
         print('\t', idx, ':', s)

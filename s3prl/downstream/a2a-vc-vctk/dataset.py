@@ -46,8 +46,8 @@ def generate_eval_pairs(file_list, train_file_list, eval_data_root, num_samples)
     return X
 
 class VCTK_VCC2020Dataset(Dataset):
-    def __init__(self, split, 
-                 trdev_data_root, eval_data_root, spk_embs_root, 
+    def __init__(self, split,
+                 trdev_data_root, eval_data_root, spk_embs_root,
                  lists_root, eval_lists_root,
                  fbank_config, spk_emb_source, num_ref_samples,
                  train_dev_seed=1337, **kwargs):
@@ -157,7 +157,7 @@ class VCTK_VCC2020Dataset(Dataset):
             )
             lmspcs.append(lmspc)
         return lmspcs
-        
+
 
     def __getitem__(self, index):
         input_wav_path = self.X[index][0]
@@ -193,7 +193,7 @@ class VCTK_VCC2020Dataset(Dataset):
             input_wav_path = input_wav_name + "_{}samples.wav".format(len(spk_emb_paths))
 
         return input_wav_resample, input_wav_original, lmspc, ref_spk_emb, input_wav_path, ref_spk_name
-    
+
     def collate_fn(self, batch):
         sorted_batch = sorted(batch, key=lambda x: -x[1].shape[0])
         bs = len(sorted_batch) # batch_size
@@ -205,7 +205,7 @@ class VCTK_VCC2020Dataset(Dataset):
         ref_spk_embs = torch.from_numpy(np.array([sorted_batch[i][3] for i in range(bs)]))
         wav_paths = [sorted_batch[i][4] for i in range(bs)]
         ref_spk_names = [sorted_batch[i][5] for i in range(bs)]
-        
+
         return wavs, wavs_2, acoustic_features, acoustic_features_padded, acoustic_feature_lengths, wav_paths, ref_spk_embs, ref_spk_names, None
 
 
@@ -286,5 +286,5 @@ class CustomDataset(Dataset):
         wav_paths = [sorted_batch[i][3] for i in range(bs)]
         ref_spk_names = [sorted_batch[i][4] for i in range(bs)]
         save_wav_names = [sorted_batch[i][5] for i in range(bs)]
-        
+
         return wavs, wavs_2, None, None, None, wav_paths, ref_spk_embs, ref_spk_names, save_wav_names

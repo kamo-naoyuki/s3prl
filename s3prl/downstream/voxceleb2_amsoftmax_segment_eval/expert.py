@@ -51,7 +51,7 @@ class DownstreamExpert(nn.Module):
         self.train_dataset = SpeakerVerifi_train(self.datarc['vad_config'], **self.datarc['train'])
         self.dev_dataset = SpeakerVerifi_dev(self.datarc['vad_config'], self.datarc["segment_config"], **self.datarc['dev'])
         self.test_dataset = SpeakerVerifi_test(self.datarc['vad_config'],self.datarc["segment_config"], **self.datarc['test'])
-        
+
         self.connector = nn.Linear(self.upstream_dim, self.modelrc['input_dim'])
         self.model = Model(input_dim=self.modelrc['input_dim'], agg_dim=self.modelrc['agg_dim'], agg_module=self.modelrc['agg_module'], config=self.modelrc)
         self.objective = AdMSoftmaxLoss(self.modelrc['input_dim'], self.train_dataset.speaker_num, s=30.0, m=0.4)
@@ -79,7 +79,7 @@ class DownstreamExpert(nn.Module):
         """
 
         if mode == 'train':
-            return self._get_train_dataloader(self.train_dataset)            
+            return self._get_train_dataloader(self.train_dataset)
         elif mode == 'dev':
             return self._get_eval_dataloader(self.dev_dataset)
         elif mode == 'test':
@@ -87,7 +87,7 @@ class DownstreamExpert(nn.Module):
 
     def _get_train_dataloader(self, dataset):
         return DataLoader(
-            dataset, batch_size=self.datarc['train_batch_size'], 
+            dataset, batch_size=self.datarc['train_batch_size'],
             shuffle=True, num_workers=self.datarc['num_workers'],
             collate_fn=dataset.collate_fn
         )
@@ -139,7 +139,7 @@ class DownstreamExpert(nn.Module):
                 the loss to be optimized, should not be detached
         """
         features_pad = pad_sequence(features, batch_first=True)
-        
+
         if self.modelrc['module'] == "XVector":
             attention_mask = [torch.ones((feature.shape[0]-14)) for feature in features]
         else:
@@ -156,11 +156,11 @@ class DownstreamExpert(nn.Module):
         if self.training:
             labels = torch.LongTensor(labels).to(features_pad.device)
             loss = self.objective(agg_vec, labels)
-            
+
             return loss
 
         else:
-            # normalize to unit vector 
+            # normalize to unit vector
             agg_vec = agg_vec / (torch.norm(agg_vec, dim=-1).unsqueeze(-1))
 
             if len(labels) >1:
@@ -172,7 +172,7 @@ class DownstreamExpert(nn.Module):
                     records[f'pairid_info'].append(f'pairid_{pair_list[index]}')
                     records[f'pairid_{pair_list[index]}'].append(f'utterid_{utterid_list[index]}')
                     records[f'pairid_{pair_list[index]}_label'].append(labels[index])
-         
+
             else:
                 records[f'utterid_{utterid_list[0]}'].append(agg_vec[0])
                 records[f'utterid_info'].append(f'utterid_{utterid_list[0]}')
@@ -223,7 +223,7 @@ class DownstreamExpert(nn.Module):
             wav_set = list(set(records[index]))
             if len(wav_set) == 1:
                 # wavs1 = records[wav_set[0]][None,:]
-                # wavs2 = records[wav_set[0]][:,None]                
+                # wavs2 = records[wav_set[0]][:,None]
                 wavs1 = records[wav_set[0]]
                 wavs2 = records[wav_set[0]]
             else:
@@ -237,5 +237,3 @@ class DownstreamExpert(nn.Module):
             records['ylabels'].append(ylabel)
             records['scores'].append(score)
         return records
-
-        

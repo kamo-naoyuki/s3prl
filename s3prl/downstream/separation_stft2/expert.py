@@ -121,7 +121,7 @@ class DownstreamExpert(nn.Module):
         self.loss_type = self.modelrc["loss_type"]
         self.log = self.modelrc["log"]
         self.objective = SepLoss(self.datarc['num_speakers'], self.loss_type, self.modelrc["mask_type"], self.log)
-        
+
         self.register_buffer("best_score", torch.ones(1) * -10000)
 
     def _get_train_dataloader(self, dataset):
@@ -182,7 +182,7 @@ class DownstreamExpert(nn.Module):
                 list of utterance names
 
             source_attr:
-                source_attr is a dict containing the STFT information 
+                source_attr is a dict containing the STFT information
                 for the mixture. source_attr['magnitude'] stores the STFT
                 magnitude, source_attr['phase'] stores the STFT phase and
                 source_attr['stft'] stores the raw STFT feature. The shape
@@ -239,8 +239,8 @@ class DownstreamExpert(nn.Module):
             # reconstruct the signal using iSTFT
             predict_srcs_np = [librosa.util.fix_length(librosa.istft(stft_mat,
                 hop_length=self.upstream_rate,
-                win_length=self.datarc['win_length'], 
-                window=self.datarc['window'], 
+                win_length=self.datarc['win_length'],
+                window=self.datarc['window'],
                 center=self.datarc['center']), size=wav_length[0]) for stft_mat in predict_stfts_np]
             predict_srcs_np = np.stack(predict_srcs_np, 0)
             gt_srcs_np = torch.cat(target_wav_list, 0).data.cpu().numpy()

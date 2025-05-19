@@ -37,7 +37,7 @@ class UpstreamPretrainExpert(ApcPretrainExpert):
             preprocessor, feat_dim = create_transform(copy.deepcopy(self.upstream_config['data']['audio']))
         except:
             raise NotImplementedError('Our upstream wrapper currently does not support other feature extracters, see: `s3prl/upstream/apc/expert.py`')
-        
+
         print('[UpstreamPretrainExpert] - Initializing model...')
         self.model = NPC(feat_dim, **self.upstream_config["model"]["paras"])
         self.loss = torch.nn.L1Loss(reduction='none')
@@ -49,19 +49,19 @@ class UpstreamPretrainExpert(ApcPretrainExpert):
         Args:
             data:
                 [spec_masked, pos_enc, mask_label, attn_mask, spec_target]
-            
+
             records:
                 defaultdict(list), by appending contents into records,
                 these contents can be averaged and logged on Tensorboard
                 later by self.log_records every log_step
 
         Return:
-            loss        
+            loss
         """
 
         audio_feat, audio_len = data[0], data[1]
         audio_feat = audio_feat.to(self.device)
-        
+
         # NPC: input = target
         pred_spec, _ = self.model(audio_feat)
         loss = self.loss(pred_spec, audio_feat)
@@ -74,9 +74,9 @@ class UpstreamPretrainExpert(ApcPretrainExpert):
         if global_step % log_step == 0:
             spec_list = [pred_spec, audio_feat]
             name_list = ['pred_spec', 'true_spec']
-            
+
             for i in range(len(spec_list)):
                 spec = plot_spectrogram_to_numpy(spec_list[i][0].data.cpu().numpy())
                 records[name_list[i]] = spec
-            
+
         return loss, records

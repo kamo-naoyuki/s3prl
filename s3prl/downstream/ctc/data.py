@@ -9,7 +9,7 @@ EVAL_BATCH_SIZE = 1
 
 
 def collect_audio_batch(batch, split, half_batch_size_wav_len=300000):
-    '''Collects a batch, should be list of tuples (audio_path <str>, list of int token <list>) 
+    '''Collects a batch, should be list of tuples (audio_path <str>, list of int token <list>)
        e.g. [(file1,txt1),(file2,txt2),...]
     '''
     def audio_reader(filepath):

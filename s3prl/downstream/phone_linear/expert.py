@@ -87,7 +87,7 @@ class DownstreamExpert(nn.Module):
         return eval(f'self.get_{mode}_dataloader')()
 
     def _tile_representations(self, reps, factor):
-        """ 
+        """
         Tile up the representations by `factor`.
         Input - sequence of representations, shape: (batch_size, seq_len, feature_dim)
         Output - sequence of tiled representations, shape: (batch_size, seq_len * factor, feature_dim)
@@ -196,5 +196,5 @@ class DownstreamExpert(nn.Module):
         with open(self.logging, 'a') as f:
             f.write(message)
         print(message)
-        
+
         return save_ckpt

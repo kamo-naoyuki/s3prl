@@ -26,7 +26,7 @@ def locate_txt(flac):
     filename = os.path.basename(flac)
     tags = filename.split('.')[0].split('-')
     txt_path = os.path.join(os.path.dirname(flac), f'{tags[0]}-{tags[1]}.trans.txt')
-    return txt_path    
+    return txt_path
 
 all_txt = Parallel(n_jobs=args.njobs)(delayed(locate_txt)(flac) for flac in tqdm(list(all_flac), desc='locate txt'))
 all_txt = set(all_txt)

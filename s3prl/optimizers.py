@@ -196,7 +196,7 @@ class AdamW(Optimizer):
                     p.data.add_(p.data, alpha=-group["lr"] * group["weight_decay"])
 
         return loss
-        
+
     def get_lr(self):
         lr = []
         for group in self.param_groups:
@@ -550,7 +550,7 @@ class Lamb(Optimizer):
         self.adam = adam
 
         super(Lamb, self).__init__(params, defaults)
-    
+
     def get_lr(self):
         lr = []
         for group in self.param_groups:
@@ -613,7 +613,7 @@ class Lamb(Optimizer):
                     bias_correction2 = 1.0 - beta2 ** state['step']
                     step_size = step_size * math.sqrt(bias_correction2) / bias_correction1
                 lr_scheduled = step_size * group['schedule'].get_lr(state['step'])
-                    
+
                 weight_norm = p.data.pow(2).sum().sqrt()
 
                 adam_step = exp_avg / exp_avg_sq.sqrt().add(group['eps'])

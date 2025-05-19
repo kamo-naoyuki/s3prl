@@ -30,9 +30,9 @@ SPEAKER_THRESHOLD = 0
 # Speaker Dataset #
 ###################
 class SpeakerDataset(Dataset):
-    
-    def __init__(self, split, bucket_size, libri_root, split_file, bucket_file, sample_rate=16000, train_dev_seed=1337, **kwargs):        
-        
+
+    def __init__(self, split, bucket_size, libri_root, split_file, bucket_file, sample_rate=16000, train_dev_seed=1337, **kwargs):
+
         self.libri_root = libri_root
         self.split_file = split_file
         self.sample_rate = sample_rate
@@ -42,7 +42,7 @@ class SpeakerDataset(Dataset):
         self.table = pd.read_csv(os.path.join(bucket_file, 'train-clean-100.csv')).sort_values(by=['length'], ascending=False)
         X = self.table['file_path'].tolist()
         X_lens = self.table['length'].tolist()
-        
+
         if (split == 'train' or split == 'dev') and os.path.isfile(os.path.join(split_file, 'train_split.txt')):
             usage_list = open(os.path.join(split_file, 'train_split.txt')).readlines()
             random.seed(train_dev_seed)
@@ -63,7 +63,7 @@ class SpeakerDataset(Dataset):
             if self._parse_x_name(x) in usage_list: # check if x is in list
                 batch_x.append(x)
                 batch_len.append(x_len)
-                
+
                 # Fill in batch_x until batch is full
                 if len(batch_x) == bucket_size:
                     # Half the batch size if seq too long
@@ -73,7 +73,7 @@ class SpeakerDataset(Dataset):
                     else:
                         self.X.append(batch_x)
                     batch_x, batch_len = [], []
-        
+
         # Gather the last batch
         if len(batch_x) > 1:
             if self._parse_x_name(x) in usage_list: # check if x is in list if list not empty

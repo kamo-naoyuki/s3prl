@@ -108,7 +108,7 @@ class DownstreamExpert(nn.Module):
         intent_loss = 0
         start_index = 0
         predicted_intent = []
-        
+
         labels = torch.stack(labels).to(features.device)
         for slot in range(len(self.values_per_slot)):
             end_index = start_index + self.values_per_slot[slot]

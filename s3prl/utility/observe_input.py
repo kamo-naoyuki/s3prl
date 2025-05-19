@@ -64,7 +64,7 @@ def starts_to_intervals(starts, consecutive):
 # MAIN #
 ########
 def main():
-    
+
     if not os.path.isdir(out_dir):
         os.makedirs(out_dir)
 
@@ -97,7 +97,7 @@ def main():
         valid_starts = torch.arange(rand_start, valid_start_max + 1, mask_bucket_size)
         chosen_starts = valid_starts[torch.randperm(len(valid_starts))[:proportion]]
     chosen_intervals = starts_to_intervals(chosen_starts, mask_consecutive)
-    
+
     # mask to zero
     x_time_zero = copy.deepcopy(x)
     x_time_zero[chosen_intervals, :] = 0

@@ -36,7 +36,7 @@ def boolean_string(s):
 # PREPROCESS CONFIGURATIONS #
 #############################
 def get_preprocess_args():
-    
+
     parser = argparse.ArgumentParser(description='preprocess arguments for LibriSpeech dataset.')
 
     parser.add_argument('--data_path', default='./data/timit', type=str, help='Path to raw TIMIT dataset')
@@ -79,7 +79,7 @@ def preprocess(args, dim):
                                             delta=args.delta, delta_delta=args.delta_delta, cmvn=args.apply_cmvn, \
                                             save_feature=os.path.join(cur_path, str(file).split('/')[-1].split('.')[0])) for file in tqdm(todo))
 
-        
+
         # sort by len
         sorted_todo = [os.path.join(s, str(todo[idx]).split('/')[-1].split('.')[0]+'.npy') for idx in reversed(np.argsort(tr_x))]
         # Dump data

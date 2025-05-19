@@ -43,10 +43,10 @@ def main():
 
     with open(log_file) as f:
         lines = f.readlines()
-        
+
         for line in lines:
             line = line.strip('\n').split(' ')
-            
+
             if line[0].lower() == 'new':
                 best_dev = line[-1]
                 best_step = line[-2].strip(':')
@@ -57,7 +57,7 @@ def main():
 
             if int(line[-2].strip(':')) > stop_step:
                 break
-    
+
     print(f'The best dev score {best_dev} at step {best_step}, accoupanied by this test score {best_test}')
 
 

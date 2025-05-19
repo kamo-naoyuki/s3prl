@@ -35,7 +35,7 @@ from os.path import join, getsize
 from joblib import Parallel, delayed
 from torch.utils.data import Dataset, DataLoader
 from librosa.util import find_files
-from functools import lru_cache 
+from functools import lru_cache
 import copy
 import os
 import glob
@@ -51,14 +51,14 @@ from sox import Transformer
 import concurrent.futures
 # torchaudio.set_audio_backend("sox_io")
 max_timestep = int(16000 * 8)
-# Voxceleb 1 + 2 
+# Voxceleb 1 + 2
 # preprocessing need seperate folder to dev, train, test
 class AudioBatchData(Dataset):
     def __init__(self, file_path, max_timestep=16000*5, meta_data=None, utter_number=5, sizeWindow=1,nProcessLoader=1, MAX_SIZE_LOADED=4000, batch_size=16):
 
         self.roots = file_path
         self.root_key = list(self.roots.keys())
-        
+
         # extract dev speaker and store in self.black_list_spealers
         with open(meta_data, "r") as f:
             self.black_list_speakers = f.read().splitlines()
@@ -66,7 +66,7 @@ class AudioBatchData(Dataset):
         # calculate speakers and support to remove black list speaker (dev)
         self.all_speakers = \
             [f.path for key in self.root_key for f in os.scandir(self.roots[key]) if f.is_dir() and f.path.split("/")[-1] not in self.black_list_speakers]
-        
+
         self.utter_number = utter_number
         self.necessary_dict = self.processing()
         self.dataset = self.necessary_dict['spk_paths']
@@ -96,14 +96,14 @@ class AudioBatchData(Dataset):
         self.loadNextPack()
         end = time.time()
         print(f"preload data chunk takes {end-start} seconds")
-    
+
     def prepare(self):
 
-        random.shuffle(self.dataset)        
+        random.shuffle(self.dataset)
         start_time = time.time()
 
         start, packageSize = 0, 0
-        for index, speaker_id in tqdm(enumerate(self.all_speakers)):            
+        for index, speaker_id in tqdm(enumerate(self.all_speakers)):
             # take speaker id
             positive_id = speaker_id
             all_paths = []
@@ -120,22 +120,22 @@ class AudioBatchData(Dataset):
         print(f"{len(self.packageIndex)} chunks computed")
         self.currentPack = -1
         self.nextPack = 0
-    
+
     def take_path(self, idx):
         paths=random.sample(self.file_list[idx], self.utter_number)
         return paths
-        
+
     def processing(self):
-        
+
         speaker_num = len(self.all_speakers)
         return {"spk_paths":self.all_speakers,"total_spk_num":speaker_num,"pair_table":None}
-    
+
     def clear(self):
         if 'data' in self.__dict__:
             del self.data
         if 'length' in self.__dict__:
             del self.length
-    
+
     def loadNextPack(self, first=False):
         self.clear()
         if not first:
@@ -148,7 +148,7 @@ class AudioBatchData(Dataset):
         self.nextPack = (self.currentPack + 1) % len(self.packageIndex)
         seqStart, seqEnd = self.packageIndex[self.nextPack]
         if self.nextPack == 0 and len(self.packageIndex) > 1:
-            self.prepare()    
+            self.prepare()
         datalist = self.batched_paths[seqStart:seqEnd]
         loadFile_fn = partial(loadFile, max_timestep=self.max_timestep)
         self.r=self.reload_pool.map_async(loadFile_fn,datalist)
@@ -163,19 +163,19 @@ class AudioBatchData(Dataset):
         for batch_seq, batch_length in self.nextData:
             tmpData.append(batch_seq)
             tmpLength.append(batch_length)
-            
+
             del batch_seq
             del batch_length
-        
+
         tmpData = pad_sequence(tmpData, batch_first=True)
         tmpLength = torch.stack(tmpLength)
-        
+
         sample_num=len(tmpData)
 
         self.data = tmpData
         self.length = tmpLength
 
-    
+
     def __len__(self):
         return self.necessary_dict['total_spk_num']
 
@@ -186,7 +186,7 @@ class AudioBatchData(Dataset):
         if index < 0 or index >= len(self.data) - self.sizeWindow - 1:
             # print(index)
             pass
-    
+
         xs = self.data[index:(self.sizeWindow+index)]
         lengths = self.length[index:(self.sizeWindow+index)]
 
@@ -194,12 +194,12 @@ class AudioBatchData(Dataset):
         length_list = []
 
         for index in range(len(xs)):
-            
+
             x_list.append(xs[index, :lengths[index]])
             length_list.append(lengths[index])
 
         return x_list, length_list
-    
+
     def getDataLoader(self, batchSize, numWorkers=0,
                       onLoop=-1):
         r"""
@@ -232,7 +232,7 @@ class AudioBatchData(Dataset):
 
         return AudioLoader(self, samplerCall, nLoops, self.loadNextPack,
                            totSize, numWorkers)
-    
+
     def getBaseSampler(self, batchSize, offset):
 
         sampler = UniformAudioSampler(len(self.data), self.sizeWindow,
@@ -249,7 +249,7 @@ def collate_fn(data_sample):
         lengths.extend(samples[1])
 
     return wavs, lengths, -1,
-    
+
 def loadFile(data, max_timestep):
     transformer = Transformer()
     transformer.norm()
@@ -268,11 +268,11 @@ def loadFile(data, max_timestep):
     return wav, length
 
 def loadFile_thread_exec(data):
-    
+
     wavs = []
     lengths = []
     for i in range(len(data)):
-        
+
         fullPath = data[i]
         transformer = Transformer()
         transformer.norm()
@@ -369,8 +369,8 @@ class SpeakerVerifi_dev(Dataset):
         self.meta_data = meta_data
         self.necessary_dict = self.processing()
         self.max_timestep = max_timestep
-        self.dataset = self.necessary_dict['pair_table'] 
-        
+        self.dataset = self.necessary_dict['pair_table']
+
     def processing(self):
         pair_table = []
         with open(self.meta_data, "r") as f:
@@ -412,7 +412,7 @@ class SpeakerVerifi_dev(Dataset):
         return wav1, wav2, \
         torch.tensor(length1), torch.tensor(length2), \
         torch.tensor(int(y_label[0])),
-    
+
     def collate_fn(self, data_sample):
         wavs1 = []
         wavs2 = []
@@ -445,8 +445,8 @@ class SpeakerVerifi_test(Dataset):
         self.root = file_path
         self.meta_data = meta_data
         self.necessary_dict = self.processing()
-        self.dataset = self.necessary_dict['pair_table'] 
-        
+        self.dataset = self.necessary_dict['pair_table']
+
     def processing(self):
         pair_table = []
         with open(self.meta_data, "r") as f:
@@ -476,7 +476,7 @@ class SpeakerVerifi_test(Dataset):
         return wav1, wav2, \
         torch.tensor(length1), torch.tensor(length2), \
         torch.tensor(int(y_label[0])),
-    
+
     def collate_fn(self, data_sample):
         wavs1 = []
         wavs2 = []
@@ -500,4 +500,3 @@ class SpeakerVerifi_test(Dataset):
         all_lengths.extend(lengths2)
 
         return all_wavs, all_lengths, ylabels
-

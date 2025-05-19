@@ -14,4 +14,3 @@ with open(args.config, 'r') as file:
 
 ckpt['config'] = config
 torch.save(ckpt, args.out_ckpt)
-

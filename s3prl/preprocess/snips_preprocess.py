@@ -1,4 +1,4 @@
-from random import shuffle 
+from random import shuffle
 import os
 from glob import glob
 import shutil
@@ -79,11 +79,11 @@ def remove_IBO_from_snipt_vocab_slot(in_f, out_f):
     with open(in_f) as f:
         content = f.readlines()
     content = [x.strip() for x in content]
-    # get rid of BIO tag from the slots 
+    # get rid of BIO tag from the slots
     for idx, line in enumerate(content):
         if line != 'O':
             content[idx] = line[len('B-'):]
-    content = set(content) # remove repeating slots 
+    content = set(content) # remove repeating slots
 
     with open(out_f, 'w') as f:
         for line in content:
@@ -92,7 +92,7 @@ def remove_IBO_from_snipt_vocab_slot(in_f, out_f):
 def process_daniel_snips_file(content):
     content = [x.strip() for x in content]
     utt_ids = [x.split('\t', 1)[0] for x in content]
-   
+
     valid_uttids = [x for x in utt_ids if x.split('-')[1] == 'valid']
     test_uttids  = [x for x in utt_ids if x.split('-')[1] == 'test']
     train_uttids = [x for x in utt_ids if x.split('-')[1] == 'train']
@@ -103,23 +103,23 @@ def process_daniel_snips_file(content):
     # create utt2text, utt2slots, utt2intent
     for line in content:
         uttid, text, slots, intent = line.split('\t')
-        if len(text.split()) != len(slots.split()): # detect 'empty' in text 
+        if len(text.split()) != len(slots.split()): # detect 'empty' in text
             assert len(text.split('  ')) == 2
-            empty_idx = text.split().index(text.split('  ')[0].split()[-1]) + 1 
+            empty_idx = text.split().index(text.split('  ')[0].split()[-1]) + 1
             slots_list = slots.split()
             del slots_list[empty_idx]
             cleaned_slots = ' '.join(slots_list)
             assert len(text.split()) == len(slots_list)
             cleaned_text = ' '.join(text.split())
             #print(cleaned_text, cleaned_slots)
-        else: 
+        else:
             (cleaned_text, cleaned_slots) = (text, slots)
 
-        # get rid of the 'intent/' from all slot values 
+        # get rid of the 'intent/' from all slot values
         cleaned_slots = ' '.join([x.split('/')[1] if x != 'O' else x for x in cleaned_slots.split()])
-        # strip the whitespaces before punctuations 
+        # strip the whitespaces before punctuations
         #cleaned_text = re.sub(r'\s([?.!,"](?:\s|$))', r'\1', cleaned_text)
-        
+
         utt2text[uttid]   = cleaned_text
         utt2slots[uttid]  = cleaned_slots
         utt2intent[uttid] = intent
@@ -134,16 +134,16 @@ def process_daniel_snips_file(content):
     for utt in test_uttids:
          test_utt2text[utt] = utt2text[utt]
          test_utt2slots[utt] = utt2slots[utt]
-         test_utt2intent[utt] = utt2intent[utt] 
+         test_utt2intent[utt] = utt2intent[utt]
     for utt in train_uttids:
          train_utt2text[utt] = utt2text[utt]
          train_utt2slots[utt] = utt2slots[utt]
          train_utt2intent[utt] = utt2intent[utt]
-   
+
     assert len(set(valid_utt2intent.values())) == len(set(test_utt2intent.values())) == len(set(train_utt2intent.values())) == 7
     assert len(valid_utt2intent.keys()) == len(test_utt2intent.keys()) == 700
     assert len(train_utt2intent.keys()) == 13084
-  
+
     def __return_set_of_slots(utt2slots):
         all_slots = []
         for slot in utt2slots.values():
@@ -151,10 +151,10 @@ def process_daniel_snips_file(content):
         unique_slots = set(all_slots)
 
         return unique_slots
-    
+
     assert len(__return_set_of_slots(valid_utt2slots)) == len(__return_set_of_slots(test_utt2slots)) == \
         len(__return_set_of_slots(train_utt2slots)) == 40
-  
+
     return (train_utt2text, train_utt2slots, train_utt2intent), \
            (valid_utt2text, valid_utt2slots, valid_utt2intent), \
            (test_utt2text, test_utt2slots, test_utt2intent)
@@ -164,7 +164,7 @@ def map_and_link_snips_audio(snips_audio_dir, link_dir):
     # traverse through snips_audio_dir
     result = [y for x in os.walk(snips_audio_dir) for y in glob(os.path.join(x[0], '*.mp3'))]
 
-    for path in result: 
+    for path in result:
         person   = path.split('/')[8].split('_')[1]
         filename = path.split('/')[-1]
         if filename[:5] != 'snips':
@@ -191,14 +191,14 @@ def create_multispk_for_snips(output_dir):
                 line   = utt2line["snips-%s-%d"%(split, num)] #'-'.join(uttid.split('-')[1:])]
                 text   = line.split('\t')[1].upper()
                 slots  = line.split('\t')[2]
-                intent = line.split('\t')[3] 
+                intent = line.split('\t')[3]
                 test_out_f.write('%s BOS %s EOS\tO %s %s\n' % (uttid, text, slots, intent))
     test_out_f.close()
 
 def apply_text_norm_and_modify_slots(all_tsv, output_dir):
-    
+
     train_dirs, valid_dirs, test_dirs = process_daniel_snips_file(all_tsv)
-    # test 
+    # test
     test_file = open(os.path.join(output_dir, 'single-matched-snips.test.w-intent'), 'w')
     vocab_slot = {}
     for uttid in tqdm.tqdm(test_dirs[0].keys(), desc='Text Normalising on testing set'):
@@ -212,12 +212,12 @@ def apply_text_norm_and_modify_slots(all_tsv, output_dir):
 
         norm_slots, norm_texts = sent_normalise(text, slots_split)
         assert len(norm_texts) == len(norm_slots), (norm_texts, norm_slots)
-     
+
         # write to file
         test_file.write('%s\t%s\t%s\t%s\n' % (uttid, ' '.join(norm_texts).upper(), ' '.join(norm_slots), intent))
     test_file.close()
 
-    # valid 
+    # valid
     valid_file = open(os.path.join(output_dir, 'single-matched-snips.valid.w-intent'), 'w')
     for uttid in tqdm.tqdm(valid_dirs[0].keys(), desc='Text Normalising on validation set'):
         text = valid_dirs[0][uttid]
@@ -230,12 +230,12 @@ def apply_text_norm_and_modify_slots(all_tsv, output_dir):
 
         norm_slots, norm_texts = sent_normalise(text, slots_split)
         assert len(norm_texts) == len(norm_slots), (norm_texts, norm_slots)
-     
+
         # write to file
         valid_file.write('%s\t%s\t%s\t%s\n' % (uttid, ' '.join(norm_texts).upper(), ' '.join(norm_slots), intent))
     valid_file.close()
 
-    # train 
+    # train
     train_file = open(os.path.join(output_dir, 'single-matched-snips.train.w-intent'), 'w')
     for uttid in tqdm.tqdm(train_dirs[0].keys(), desc='Text Normalising on training set'):
         text = train_dirs[0][uttid]
@@ -248,7 +248,7 @@ def apply_text_norm_and_modify_slots(all_tsv, output_dir):
 
         norm_slots, norm_texts = sent_normalise(text, slots_split)
         assert len(norm_texts) == len(norm_slots), (norm_texts, norm_slots)
-     
+
         # write to file
         train_file.write('%s\t%s\t%s\t%s\n' % (uttid, ' '.join(norm_texts).upper(), ' '.join(norm_slots), intent))
     train_file.close()
@@ -268,7 +268,7 @@ def sox_func(inputs):
             r = os.popen(bashCommand).read()
 
 def sox_mp3_to_wav(in_root, out_root):
-    
+
     os.makedirs(out_root, exist_ok=True)
     pool = Pool(16)
     inputs = []
@@ -299,7 +299,7 @@ if __name__ == '__main__':
     elif mode == 'audio':
         audio_dir = sys.argv[2]
         dump_dir = sys.argv[3]
-        # Step: sox the snips *.mp3 to the correct format 
+        # Step: sox the snips *.mp3 to the correct format
         sox_mp3_to_wav(audio_dir, dump_dir)
     else:
         print('Usage: python preprocess.py [text|audio] [data_path] [dump_path]')

@@ -39,10 +39,10 @@ class Mean(nn.Module):
 
     def forward(self, feature, att_mask):
 
-        ''' 
+        '''
         we use 1 hidden layer and applied mean pooling in the end to generate utterance-level representation
         Arguments
-            feature - [BxTxD]   Acoustic feature with shape 
+            feature - [BxTxD]   Acoustic feature with shape
             att_mask   - [BxTx1]     Attention Mask logits
         '''
         feature=self.linear(self.act_fn(feature))
@@ -65,12 +65,12 @@ class SAP(nn.Module):
         # Setup
         self.act_fn = nn.Tanh()
         self.sap_layer = SelfAttentionPooling(out_dim)
-    
+
     def forward(self, feature, att_mask):
 
-        ''' 
+        '''
         Arguments
-            feature - [BxTxD]   Acoustic feature with shape 
+            feature - [BxTxD]   Acoustic feature with shape
             att_mask   - [BxTx1]     Attention Mask logits
         '''
         #Encode
@@ -81,7 +81,7 @@ class SAP(nn.Module):
 
 class SelfAttentionPooling(nn.Module):
     """
-    Implementation of SelfAttentionPooling 
+    Implementation of SelfAttentionPooling
     Original Paper: Self-Attention Encoding and Pooling for Speaker Recognition
     https://arxiv.org/pdf/2008.01077v1.pdf
     """
@@ -93,15 +93,15 @@ class SelfAttentionPooling(nn.Module):
         """
         input:
         batch_rep : size (N, T, H), N: batch size, T: sequence length, H: Hidden dimension
-        
+
         attention_weight:
         att_w : size (N, T, 1)
-        
+
         return:
         utter_rep: size (N, H)
         """
         seq_len = batch_rep.shape[1]
-        
+
         att_logits = self.W(batch_rep).squeeze(-1)
         att_logits = att_mask + att_logits
         att_w = self.softmax(att_logits, dim=-1).unsqueeze(-1)
@@ -112,13 +112,13 @@ class SelfAttentionPooling(nn.Module):
 class Model(nn.Module):
     def __init__(self, input_dim, agg_module, config):
         super(Model, self).__init__()
-        
+
         # agg_module: current support [ "SAP", "Mean" ]
         # init attributes
         self.agg_method = eval(agg_module)(input_dim)
-        
+
         self.model= eval(config['module'])(config=Namespace(**config['hparams']),)
-        self.head_mask = [None] * config['hparams']['num_hidden_layers']         
+        self.head_mask = [None] * config['hparams']['num_hidden_layers']
 
 
 
@@ -211,5 +211,3 @@ def _indices_to_replace(n_spkr, n_uttr):
     indices = [(s * n_uttr + u) * n_spkr + s
                for s in range(n_spkr) for u in range(n_uttr)]
     return torch.LongTensor(indices)
-
-

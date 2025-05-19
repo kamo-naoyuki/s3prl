@@ -25,7 +25,7 @@ from joblib import Parallel, delayed
 # PREPROCESS CONFIGURATIONS #
 #############################
 def get_preprocess_args():
-    
+
     parser = argparse.ArgumentParser(description='preprocess arguments for any dataset.')
 
     parser.add_argument('-i', '--input_data', default='../LibriSpeech/', type=str, help='Path to your LibriSpeech directory', required=False)
@@ -50,7 +50,7 @@ def extract_length(input_file):
 # GENERATE LENGTH #
 ###################
 def generate_length(args, tr_set, audio_extension):
-    
+
     for i, s in enumerate(tr_set):
         if os.path.isdir(os.path.join(args.input_data, s.lower())):
             s = s.lower()
@@ -85,7 +85,7 @@ def main():
 
     # get arguments
     args = get_preprocess_args()
-    
+
     if 'librilight' in args.input_data.lower():
         SETS = ['small', 'medium', 'large'] + ['small-splitted', 'medium-splitted', 'large-splitted']
     elif 'librispeech' in args.input_data.lower():
@@ -98,7 +98,7 @@ def main():
     # SETS = ['train', 'dev', 'test']
     # SETS = ['TRAIN', 'TEST']
     # SETS = ['train-clean-100', 'train-clean-360', 'train-other-500', 'dev-clean', 'dev-other', 'test-clean', 'test-other']
-    
+
     # Select data sets
     for idx, s in enumerate(SETS):
         print('\t', idx, ':', s)

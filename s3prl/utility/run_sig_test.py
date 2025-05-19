@@ -51,7 +51,7 @@ def get_ttest_args():
     # fisher, for categorical results: https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.fisher_exact.html
     # mcnemar, for categorical results: https://www.statsmodels.org/dev/generated/statsmodels.stats.contingency_tables.mcnemar.html
     parser.add_argument('-m', '--mode', choices=['ttest', 'fisher', 'mcnemar'], default='ttest')
-    
+
     parser.add_argument('-em', '--evaluate_metric', default='acc')
     parser.add_argument('-t', '--evaluate_split', default='test')
     parser.add_argument('-o', '--override', help='Used to override args and config, this is at the highest priority')
@@ -129,13 +129,13 @@ class Tester(Runner):
     """
     def __init__(self, args, config):
         super(Tester, self).__init__(args, config)
-    
+
     def evaluate(self):
         """evaluate function will always be called on a single process even during distributed training"""
 
         split = self.args.evaluate_split
 
-        # fix seed to guarantee the same evaluation protocol across steps 
+        # fix seed to guarantee the same evaluation protocol across steps
         random.seed(self.args.seed)
         np.random.seed(self.args.seed)
         torch.manual_seed(self.args.seed)
@@ -200,19 +200,19 @@ def main():
     elif mode == 'fisher':
         correct1 = sample_metric1.count(True)
         correct2 = sample_metric2.count(True)
-        contingency_table = [[correct1, correct2], 
+        contingency_table = [[correct1, correct2],
                              [len(sample_metric1)-correct1, len(sample_metric2)-correct2]]
         statistic, p_value = stats.fisher_exact(contingency_table)
     elif mode == 'mcnemar':
         correct1 = sample_metric1.count(True)
         correct2 = sample_metric2.count(True)
-        contingency_table = [[correct1, correct2], 
+        contingency_table = [[correct1, correct2],
                              [len(sample_metric1)-correct1, len(sample_metric2)-correct2]]
         b = mcnemar(contingency_table, exact=True)
         statistic, p_value = b.statistic, b.pvalue
     else:
         raise NotImplementedError
-    
+
     print(f'[Runner] - The testing scores of the two ckpts are {average1} and {average2}, respectively.')
     print(f'[Runner] - The statistic of the significant test of the two ckpts is {statistic}')
     print(f'[Runner] - The P value of significant test of the two ckpts is {p_value}')

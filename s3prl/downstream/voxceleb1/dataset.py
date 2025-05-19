@@ -1,10 +1,10 @@
 import torch
 from torch.utils.data import DataLoader, Dataset
-import numpy as np 
+import numpy as np
 from librosa.util import find_files
 from torchaudio import load
 from torch import nn
-import os 
+import os
 import re
 import random
 import pickle
@@ -52,11 +52,11 @@ class SpeakerClassifiDataset(Dataset):
             y.append(int(id_string[2:]) - 10001)
 
         return y
-    
+
     @classmethod
     def label2speaker(self, labels):
         return [f"id{label + 10001}" for label in labels]
-    
+
     def train(self):
 
         dataset = []
@@ -68,9 +68,9 @@ class SpeakerClassifiDataset(Dataset):
                 x = list(self.root.glob("*/wav/" + pair[1]))
                 dataset.append(str(x[0]))
         print("finish searching training set wav")
-                
+
         return dataset
-        
+
     def dev(self):
 
         dataset = []
@@ -80,10 +80,10 @@ class SpeakerClassifiDataset(Dataset):
             index = pair[0]
             if int(index) == 2:
                 x = list(self.root.glob("*/wav/" + pair[1]))
-                dataset.append(str(x[0])) 
+                dataset.append(str(x[0]))
         print("finish searching dev set wav")
 
-        return dataset       
+        return dataset
 
     def test(self):
 
@@ -94,14 +94,14 @@ class SpeakerClassifiDataset(Dataset):
             index = pair[0]
             if int(index) == 3:
                 x = list(self.root.glob("*/wav/" + pair[1]))
-                dataset.append(str(x[0])) 
+                dataset.append(str(x[0]))
         print("finish searching test set wav")
 
         return dataset
 
     def __len__(self):
         return len(self.dataset)
-    
+
     def __getitem__(self, idx):
         wav, sr = torchaudio.load(self.dataset[idx])
         wav = wav.squeeze(0)
@@ -118,6 +118,6 @@ class SpeakerClassifiDataset(Dataset):
 
         path = self.dataset[idx]
         return wav.numpy(), self.label[idx], path2name(path)
-        
+
     def collate_fn(self, samples):
         return zip(*samples)

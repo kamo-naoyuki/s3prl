@@ -20,14 +20,14 @@ import torch.nn as nn
 class Model(nn.Module):
     def __init__(self, input_dim, output_class_num, concat_n_frames, **kwargs):
         super(Model, self).__init__()
-        
+
         assert concat_n_frames > 1, '`concat_n_frames` should be greater than 1.'
         assert concat_n_frames % 2 == 1, '`concat_n_frames must be an odd number.'
-        
+
         # init attributes
         self.concat_n_frames = concat_n_frames
-        self.linear = nn.Linear(input_dim*concat_n_frames, output_class_num)          
-            
+        self.linear = nn.Linear(input_dim*concat_n_frames, output_class_num)
+
 
     def _roll(self, x, n, padding='same'):
         # positive n: roll around to the right on the first axis. For example n = 2: [1, 2, 3, 4, 5] -> [4, 5, 1, 2, 3]
@@ -43,7 +43,7 @@ class Model(nn.Module):
                 left = x[-n:]
             right = x[:-n]
 
-        elif n < 0: # when n is negative (n=-2), 
+        elif n < 0: # when n is negative (n=-2),
             if padding == 'zero': # set right to zero: [1, 2, 3, 4, 5] -> [3, 4, 5, 0, 0]
                 right = torch.zeros_like(x[:-n])
             elif padding == 'same': # set right to same as last: [1, 2, 3, 4, 5] -> [3, 4, 5, 5, 5]

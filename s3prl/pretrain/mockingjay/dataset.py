@@ -25,10 +25,10 @@ HALF_BATCHSIZE_TIME = 99999
 
 
 class KaldiAcousticDataset(FeatDataset):
-    
-    def __init__(self, extracter, task_config, bucket_size, file_path, sets, 
+
+    def __init__(self, extracter, task_config, bucket_size, file_path, sets,
                  max_timestep=0, libri_root=None, **kwargs):
-        super(KaldiAcousticDataset, self).__init__(extracter, task_config, bucket_size, file_path, sets, 
+        super(KaldiAcousticDataset, self).__init__(extracter, task_config, bucket_size, file_path, sets,
                                                    max_timestep, libri_root, **kwargs)
 
     def _load_feat(self, feat_path):
@@ -47,15 +47,15 @@ class KaldiAcousticDataset(FeatDataset):
 
 
 class OnlineAcousticDataset(FeatDataset):
-    
-    def __init__(self, extracter, task_config, bucket_size, file_path, sets, 
+
+    def __init__(self, extracter, task_config, bucket_size, file_path, sets,
                  max_timestep=0, libri_root=None, target_level=-25, **kwargs):
         max_timestep *= 160
-        super(OnlineAcousticDataset, self).__init__(extracter, task_config, bucket_size, file_path, sets, 
+        super(OnlineAcousticDataset, self).__init__(extracter, task_config, bucket_size, file_path, sets,
                                                     max_timestep, libri_root, **kwargs)
         self.target_level = target_level
         self.sample_length = self.sample_length * 160
-    
+
     def _normalize_wav_decibel(self, wav):
         '''Normalize the signal to the target level'''
         if self.target_level == 'None':

@@ -37,9 +37,9 @@ class Mean(nn.Module):
 
     def forward(self, feature, att_mask):
 
-        ''' 
+        '''
         Arguments
-            feature - [BxTxD] Acoustic feature with shape 
+            feature - [BxTxD] Acoustic feature with shape
             att_mask - [BxTx1]     Attention Mask logits
         '''
         feature=self.linear(self.act_fn(feature))
@@ -63,12 +63,12 @@ class SAP(nn.Module):
         # Setup
         self.act_fn = nn.Tanh()
         self.sap_layer = SelfAttentionPooling(out_dim)
-    
+
     def forward(self, feature, att_mask):
 
-        ''' 
+        '''
         Arguments
-            feature - [BxTxD] Acoustic feature with shape 
+            feature - [BxTxD] Acoustic feature with shape
             att_mask - [BxTx1] Attention Mask logits
         '''
         # Encode
@@ -80,7 +80,7 @@ class SAP(nn.Module):
 
 class SelfAttentionPooling(nn.Module):
     """
-    Implementation of SelfAttentionPooling 
+    Implementation of SelfAttentionPooling
     Original Paper: Self-Attention Encoding and Pooling for Speaker Recognition
     https://arxiv.org/pdf/2008.01077v1.pdf
     """
@@ -92,10 +92,10 @@ class SelfAttentionPooling(nn.Module):
         """
         input:
         batch_rep : size (N, T, H), N: batch size, T: sequence length, H: Hidden dimension
-        
+
         attention_weight:
         att_w : size (N, T, 1)
-        
+
         return:
         utter_rep: size (N, H)
         """
@@ -110,21 +110,21 @@ class SelfAttentionPooling(nn.Module):
 class Model(nn.Module):
     def __init__(self, input_dim, agg_module, output_class_num, config):
         super(Model, self).__init__()
-        
+
         # agg_module: current support [ "SAP", "Mean" ]
         # init attributes
         self.agg_method = eval(agg_module)(input_dim)
         self.linear = nn.Linear(input_dim, output_class_num)
-        
+
         # two standard transformer encoder layer
         self.model= eval(config['module'])(config=Namespace(**config['hparams']),)
-        self.head_mask = [None] * config['hparams']['num_hidden_layers']         
+        self.head_mask = [None] * config['hparams']['num_hidden_layers']
 
     def forward(self, features, att_mask):
         features = self.model(features,att_mask[:,None,None], head_mask=self.head_mask, output_all_encoded_layers=False)
         utterance_vector = self.agg_method(features[0], att_mask)
         predicted = self.linear(utterance_vector)
-        
+
         return predicted # Use LogSoftmax since self.criterion combines nn.LogSoftmax() and nn.NLLLoss()
 
 class UtterLinear(nn.Module):
@@ -133,7 +133,7 @@ class UtterLinear(nn.Module):
         self.model = UtteranceLevel_Linear(input_dim=input_dim, class_num=output_class_num)
         self.pooling = eval(pooling_name)(input_dim=input_dim)
 
-    
+
     def forward(self, features, features_len):
         device = features.device
         features = self.pooling(features, features_len)

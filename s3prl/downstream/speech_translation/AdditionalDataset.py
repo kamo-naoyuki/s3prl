@@ -20,7 +20,7 @@ class AdditionalDataset:
             )
             for line in reader:
                 data.append(line[key])
-        
+
         return cls(data, bpe_tokenizer, pre_tokenizer)
 
     def __init__(self, data, dictionary, bpe_tokenizer=None, pre_tokenizer=None):
@@ -31,12 +31,12 @@ class AdditionalDataset:
         self.dictionary = dictionary
 
     def _create_target(self, index):
-        
+
         tokenized = self._tokenize_text(self.data[index])
         target = self.dictionary.encode_line(
             tokenized, add_if_not_exist=False, append_eos=True
         ).long()
-        
+
         return target
 
     def get_addtional_input(self, id_list):
@@ -69,7 +69,7 @@ class AdditionalDataset:
             "target_lengths": target_lengths,
             "ntokens": ntokens,
         }
-        
+
     def _tokenize_text(self, text):
 
         if self.pre_tokenizer is not None:

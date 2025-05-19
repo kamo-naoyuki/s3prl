@@ -25,7 +25,7 @@ from utility.audio import sample_rate, _stft_parameters
 # PREPROCESS CONFIGURATIONS #
 #############################
 def get_preprocess_args():
-    
+
     parser = argparse.ArgumentParser(description='preprocess arguments for LibriSpeech dataset.')
     parser.add_argument('--data_path', default='./data/libri_alignment', type=str, help='Path to raw LibriSpeech alignment')
     parser.add_argument('--output_path', default='./data/libri_phone', type=str, help='Path to store output', required=False)
@@ -37,13 +37,13 @@ def get_preprocess_args():
 # PHONE PREPROCESS #
 ####################
 def phone_preprocess(data_path, output_path, sets, unaligned):
-    
+
     print('Data sets :')
     for idx, s in enumerate(sets):
         print('\t', idx, ':', s)
     todo_sets = input('Please enter the index for preprocessing sets (seperate w/ space): ')
     sets = [sets[int(s)] for s in todo_sets.split(' ')]
-    
+
     # compute phone2idx
     idx = 0
     phone2idx = {}
@@ -69,7 +69,7 @@ def phone_preprocess(data_path, output_path, sets, unaligned):
         print('Preprocessing', s, 'data...')
         todo = list(Path(os.path.join(data_path, s)).rglob("*.txt"))
         print(len(todo),'audio files found in', s)
-        if not os.path.exists(os.path.join(output_path, s)): 
+        if not os.path.exists(os.path.join(output_path, s)):
             os.makedirs(os.path.join(output_path, s))
 
         print('Preprocessing phone alignments...', flush=True)
@@ -86,7 +86,7 @@ def phone_preprocess(data_path, output_path, sets, unaligned):
                 with open(path_to_save, "wb") as fp:
                     pickle.dump(x, fp)
 
-    print('Phone preprocessing complete!')      
+    print('Phone preprocessing complete!')
 
 
 #################
@@ -94,10 +94,10 @@ def phone_preprocess(data_path, output_path, sets, unaligned):
 #################
 def time_to_frame(start_time, end_time, phone):
     phones = []
-    
+
     start_time = int(start_time * sample_rate)
     end_time = int(end_time * sample_rate)
-    
+
     _, hop_length, win_length = _stft_parameters(sample_rate=sample_rate)
     h_window = win_length * 0.5 # select the middle of a window
 
@@ -116,7 +116,7 @@ def main():
 
     # get arguments
     args = get_preprocess_args()
-    
+
     # mkdir
     if not os.path.exists(args.output_path):
         os.makedirs(args.output_path)

@@ -75,7 +75,7 @@ class VCC2020Dataset(Dataset):
         )
 
         return wav_resample, wav_original, lmspc, wav_path
-    
+
     def collate_fn(self, batch):
         sorted_batch = sorted(batch, key=lambda x: -x[1].shape[0])
         bs = len(sorted_batch) # batch_size
@@ -85,7 +85,7 @@ class VCC2020Dataset(Dataset):
         acoustic_features_padded = pad_sequence(acoustic_features, batch_first=True)
         acoustic_feature_lengths = torch.from_numpy(np.array([acoustic_feature.size(0) for acoustic_feature in acoustic_features]))
         wav_paths = [sorted_batch[i][3] for i in range(bs)]
-        
+
         return wavs, wavs_2, acoustic_features, acoustic_features_padded, acoustic_feature_lengths, wav_paths
 
 
@@ -116,12 +116,12 @@ class CustomDataset(Dataset):
         wav_resample, fs_resample = self._load_wav(wav_path, fs=FS)
 
         return wav_resample, wav_original, wav_path
-    
+
     def collate_fn(self, batch):
         sorted_batch = sorted(batch, key=lambda x: -x[1].shape[0])
         bs = len(sorted_batch) # batch_size
         wavs = [torch.from_numpy(sorted_batch[i][0]) for i in range(bs)]
         wavs_2 = [torch.from_numpy(sorted_batch[i][1]) for i in range(bs)] # This is used for obj eval
         wav_paths = [sorted_batch[i][2] for i in range(bs)]
-        
+
         return wavs, wavs_2, None, None, None, wav_paths

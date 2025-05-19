@@ -25,7 +25,7 @@ class DownstreamExpert(nn.Module):
         self.upstream_dim = upstream_dim
         self.datarc = downstream_expert['datarc']
         self.modelrc = downstream_expert['modelrc']
-        
+
         self.get_dataset()
 
         self.train_dataset = AtisDataset(self.train_df, self.base_path, self.Sy_intent, 'train')
@@ -46,7 +46,7 @@ class DownstreamExpert(nn.Module):
         valid_dict = {"id": {}, "intent": {}}
         test_dict = {"id": {}, "intent": {}}
 
-        
+
         for dc, df, type_name in [(train_dict, train_df, 'train'), (valid_dict, valid_df, 'dev'), (test_dict, test_df, 'test')]:
             n = 0
             for i in range(len(df)):
@@ -56,7 +56,7 @@ class DownstreamExpert(nn.Module):
                     n += 1
                 # else:
                 #     print(os.path.join(self.base_path, type_name, df[0][i].split()[0]+'.wav'))
-            print(type_name, ': ', n+1)    
+            print(type_name, ': ', n+1)
 
         train_df = pd.DataFrame(data=train_dict)
         valid_df = pd.DataFrame(data=valid_dict)
@@ -65,7 +65,7 @@ class DownstreamExpert(nn.Module):
 
         Sy_intent = {"intent": {}}
         values_per_slot = []
-        
+
         for slot in ["intent"]:
             slot_values = Counter(train_df[slot]) + Counter(valid_df[slot]) + Counter(test_df[slot])
             for index, value in enumerate(slot_values):
@@ -107,8 +107,8 @@ class DownstreamExpert(nn.Module):
     def forward(self, mode, features, labels, records=None, **kwargs):
 
         features_pad = pad_sequence(features, batch_first=True)
-        
-        attention_mask = [torch.ones((feature.shape[0])) for feature in features] 
+
+        attention_mask = [torch.ones((feature.shape[0])) for feature in features]
 
         attention_mask_pad = pad_sequence(attention_mask,batch_first=True)
 
@@ -121,7 +121,7 @@ class DownstreamExpert(nn.Module):
         start_index = 0
         predicted_intent = []
         #labels = torch.LongTensor(labels).to(features_pad.device)
-        
+
         labels = torch.stack(labels).to(features_pad.device)
         for slot in range(len(self.values_per_slot)):
             end_index = start_index + self.values_per_slot[slot]

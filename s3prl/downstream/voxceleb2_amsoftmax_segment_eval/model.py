@@ -40,9 +40,9 @@ class Mean(nn.Module):
 
     def forward(self, feature, att_mask):
 
-        ''' 
+        '''
         Arguments
-            feature - [BxTxD]   Acoustic feature with shape 
+            feature - [BxTxD]   Acoustic feature with shape
             att_mask   - [BxTx1]     Attention Mask logits
         '''
         feature=self.linear(self.act_fn(feature))
@@ -66,12 +66,12 @@ class SAP(nn.Module):
         self.act_fn = nn.ReLU()
         self.linear = nn.Linear(input_dim, out_dim)
         self.sap_layer = SelfAttentionPooling(out_dim)
-    
+
     def forward(self, feature, att_mask):
 
-        ''' 
+        '''
         Arguments
-            feature - [BxTxD]   Acoustic feature with shape 
+            feature - [BxTxD]   Acoustic feature with shape
             att_mask   - [BxTx1]     Attention Mask logits
         '''
         #Encode
@@ -83,7 +83,7 @@ class SAP(nn.Module):
 
 class SelfAttentionPooling(nn.Module):
     """
-    Implementation of SelfAttentionPooling 
+    Implementation of SelfAttentionPooling
     Original Paper: Self-Attention Encoding and Pooling for Speaker Recognition
     https://arxiv.org/pdf/2008.01077v1.pdf
     """
@@ -94,10 +94,10 @@ class SelfAttentionPooling(nn.Module):
         """
         input:
         batch_rep : size (N, T, H), N: batch size, T: sequence length, H: Hidden dimension
-        
+
         attention_weight:
         att_w : size (N, T, 1)
-        
+
         return:
         utter_rep: size (N, H)
         """
@@ -113,18 +113,18 @@ class SelfAttentionPooling(nn.Module):
 class Model(nn.Module):
     def __init__(self, input_dim, agg_dim, agg_module, config):
         super(Model, self).__init__()
-        
+
         # agg_module: current support [ "SAP", "Mean" ]
         # init attributes
         self.agg_method = eval(agg_module)(input_dim, agg_dim)
-        
+
         # two standard transformer encoder layer
         self.model= eval(config['module'])(config=Namespace(**config['hparams']),)
-        self.head_mask = [None] * config['hparams']['num_hidden_layers']         
+        self.head_mask = [None] * config['hparams']['num_hidden_layers']
     def forward(self, features, att_mask):
         features = self.model(features,att_mask[:,None,None], head_mask=self.head_mask, output_all_encoded_layers=False)
         utterance_vector = self.agg_method(features[0], att_mask)
-        
+
         return utterance_vector
 
 class UtteranceModel(nn.Module):
@@ -161,7 +161,7 @@ class AdMSoftmaxLoss(nn.Module):
         assert len(x) == len(labels)
         assert torch.min(labels) >= 0
         assert torch.max(labels) < self.out_features
-        
+
         for W in self.fc.parameters():
             W = F.normalize(W, dim=1)
 
@@ -173,12 +173,12 @@ class AdMSoftmaxLoss(nn.Module):
         denominator = torch.exp(numerator) + torch.sum(torch.exp(self.s * excl), dim=1)
         L = numerator - torch.log(denominator)
         return -torch.mean(L)
-    
+
 class TDNN(nn.Module):
-        
+
     def __init__(
-                    self, 
-                    input_dim=23, 
+                    self,
+                    input_dim=23,
                     output_dim=512,
                     context_size=5,
                     stride=1,
@@ -190,7 +190,7 @@ class TDNN(nn.Module):
         TDNN as defined by https://www.danielpovey.com/files/2015_interspeech_multisplice.pdf
         Affine transformation not applied globally to all frames but smaller windows with local context
         batch_norm: True to include batch normalisation after the non linearity
-        
+
         Context size and dilation determine the frames selected
         (although context size is not really defined in the traditional sense)
         For example:
@@ -206,14 +206,14 @@ class TDNN(nn.Module):
         self.dilation = dilation
         self.dropout_p = dropout_p
         self.batch_norm = batch_norm
-      
+
         self.kernel = nn.Linear(input_dim*context_size, output_dim)
         self.nonlinearity = nn.ReLU()
         if self.batch_norm:
             self.bn = nn.BatchNorm1d(output_dim)
         if self.dropout_p:
             self.drop = nn.Dropout(p=self.dropout_p)
-        
+
     def forward(self, x):
         '''
         input: size (batch, seq_len, input_features)
@@ -226,9 +226,9 @@ class TDNN(nn.Module):
 
         # Unfold input into smaller temporal contexts
         x = F.unfold(
-                        x, 
-                        (self.context_size, self.input_dim), 
-                        stride=(1,self.input_dim), 
+                        x,
+                        (self.context_size, self.input_dim),
+                        stride=(1,self.input_dim),
                         dilation=(self.dilation,1)
                     )
 
@@ -236,7 +236,7 @@ class TDNN(nn.Module):
         x = x.transpose(1,2)
         x = self.kernel(x)
         x = self.nonlinearity(x)
-        
+
         if self.dropout_p:
             x = self.drop(x)
 

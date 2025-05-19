@@ -136,7 +136,7 @@ class DownstreamExpert(nn.Module):
         """
         prefix = f'libri_speaker/{mode}-'
         average = torch.FloatTensor(records['acc']).mean().item()
-        
+
         logger.add_scalar(
             f'{prefix}acc',
             average,

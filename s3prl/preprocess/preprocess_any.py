@@ -40,7 +40,7 @@ def boolean_string(s):
 # PREPROCESS CONFIGURATIONS #
 #############################
 def get_preprocess_args():
-    
+
     parser = argparse.ArgumentParser(description='preprocess arguments for any dataset.')
 
     parser.add_argument('--output_path', default='./data/', type=str, help='Path to store output', required=False)
@@ -62,7 +62,7 @@ def get_preprocess_args():
 # ACOUSTIC PREPROCESS #
 #######################
 def acoustic_preprocess(args, tr_set, dim, audio_extention):
-    
+
     for i, s in enumerate(tr_set):
         print('')
         print('Preprocessing data in: ', s, end='')

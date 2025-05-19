@@ -10,4 +10,3 @@ weights = ckpt['Classifier']['weight']
 norm = weights.abs() / weights.abs().sum()
 plt.plot(norm.cpu().numpy())
 plt.savefig(imgname)
-
