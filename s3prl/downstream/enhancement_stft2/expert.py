@@ -182,7 +182,7 @@ class DownstreamExpert(nn.Module):
                 list of utterance names
 
             source_attr:
-                source_attr is a dict containing the STFT information 
+                source_attr is a dict containing the STFT information
                 for the mixture. source_attr['magnitude'] stores the STFT
                 magnitude, source_attr['phase'] stores the STFT phase and
                 source_attr['stft'] stores the raw STFT feature. The shape
@@ -221,7 +221,7 @@ class DownstreamExpert(nn.Module):
         if self.upstream_rate == 320:
             features_upsample = [torch.repeat_interleave(feat, 2, dim=0) for feat in features]
             features = features_upsample
-        
+
         # match the feature length to STFT feature length
         features = match_length(features, feat_length)
         features = pack_sequence(features)
@@ -245,8 +245,8 @@ class DownstreamExpert(nn.Module):
             # reconstruct the signal using iSTFT
             predict_srcs_np = librosa.util.fix_length(librosa.istft(predict_stfts_np,
                 hop_length=self.datarc['hop_length'],
-                win_length=self.datarc['win_length'], 
-                window=self.datarc['window'], 
+                win_length=self.datarc['win_length'],
+                window=self.datarc['window'],
                 center=self.datarc['center']), size=wav_length[0])
             predict_srcs_np = np.expand_dims(predict_srcs_np, axis=0)
             gt_srcs_np = torch.cat(target_wav_list, 0).data.cpu().numpy()

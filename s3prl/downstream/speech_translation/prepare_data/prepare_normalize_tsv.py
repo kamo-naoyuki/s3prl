@@ -22,7 +22,7 @@ if __name__ == '__main__':
     parser.add_argument('-o', '--overwrite', action='store_true')
     parser.add_argument('-v', '--verbose', action='store_true')
     args = parser.parse_args()
-    
+
     if os.path.isfile(args.output_tsv) and not args.overwrite:
         print(f'output file: {args.output_tsv} exists, use -o/--overwrite to force overwrite')
         exit(1)

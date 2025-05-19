@@ -6,7 +6,7 @@ from torch.utils.data import Dataset
 
 
 def read_text(file):
-    '''Get transcription of target wave file, 
+    '''Get transcription of target wave file,
        it's somewhat redundant for accessing each txt multiplt times,
        but it works fine with multi-thread'''
     src_file = '-'.join(file.split('-')[:-1])+'.trans.txt'
@@ -30,7 +30,7 @@ class LibriDataset(Dataset):
             split_list = list(Path(join(path, s)).rglob("*.flac"))
             assert len(split_list) > 0, "No data found @ {}".format(join(path,s))
             file_list += split_list
-        
+
         text = []
         for f in tqdm(file_list, desc='Read text'):
             transcription = read_text(str(f))

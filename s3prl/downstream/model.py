@@ -64,9 +64,9 @@ class MeanPooling(nn.Module):
         super(MeanPooling, self).__init__()
 
     def forward(self, feature_BxTxH, features_len, **kwargs):
-        ''' 
+        '''
         Arguments
-            feature_BxTxH - [BxTxH]   Acoustic feature with shape 
+            feature_BxTxH - [BxTxH]   Acoustic feature with shape
             features_len  - [B] of feature length
         '''
         agg_vec_list = []
@@ -85,9 +85,9 @@ class AttentivePooling(nn.Module):
         self.sap_layer = AttentivePoolingModule(input_dim, activation)
 
     def forward(self, feature_BxTxH, features_len):
-        ''' 
+        '''
         Arguments
-            feature_BxTxH - [BxTxH]   Acoustic feature with shape 
+            feature_BxTxH - [BxTxH]   Acoustic feature with shape
             features_len  - [B] of feature length
         '''
         device = feature_BxTxH.device
@@ -99,7 +99,7 @@ class AttentivePooling(nn.Module):
 
 class AttentivePoolingModule(nn.Module):
     """
-    Implementation of Attentive Pooling 
+    Implementation of Attentive Pooling
     """
     def __init__(self, input_dim, activation='ReLU', **kwargs):
         super(AttentivePoolingModule, self).__init__()
@@ -112,10 +112,10 @@ class AttentivePoolingModule(nn.Module):
         """
         input:
         batch_rep : size (B, T, H), B: batch size, T: sequence length, H: Hidden dimension
-        
+
         attention_weight:
         att_w : size (B, T, 1)
-        
+
         return:
         utter_rep: size (B, H)
         """

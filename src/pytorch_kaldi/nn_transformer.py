@@ -70,7 +70,7 @@ class TRANSFORMER(nn.Module):
         self.weighted_sum = bool(strtobool(options['weighted_sum']))
         self.select_layer = int(options['select_layer'])
         if (not self.no_grad) and (not self.spec_aug_prev): raise RuntimeError('Only one of them can be set False!')
-        
+
         # increase dropout
         if str(options['dropout']) != 'default':
             self.config['transformer']['hidden_dropout_prob'] = float(options['dropout'])
@@ -91,13 +91,13 @@ class TRANSFORMER(nn.Module):
         self.device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
         self.model = TransformerModel(self.model_config, inp_dim).to(self.device)
         self.model.eval() if self.no_grad else self.model.train()
-        
+
         # Load from a PyTorch state_dict
         load = bool(strtobool(options["load_pretrain"]))
-        if load: 
+        if load:
             self.load_model(all_states['Transformer'])
             print('[Transformer] - Number of parameters: ' + str(sum(p.numel() for p in self.model.parameters() if p.requires_grad)))
-        
+
         self.out_dim = self.hidden_size # 768, This attribute is for pytorch-kaldi and downstream runner
         self.permute_input = True # This attribute is for the forward method. If Ture then input ouput is in the shape of (T, B, D), if False then in (B, T, D)
 
@@ -156,11 +156,11 @@ class TRANSFORMER(nn.Module):
         if left_over != 0: spec = spec[:, :-left_over, :]
         spec_stacked = spec.view(spec.shape[0], spec.shape[1]//self.dr, spec.shape[2]*self.dr)
         return spec_stacked
-        
+
 
     def process_input_data(self, spec):
         """Process input data for the model"""
-        
+
         # add arbitary batch axis B if input `spec` has shape of TxD
         if len(spec.shape) == 2:
             spec = spec.unsqueeze(0)
@@ -186,7 +186,7 @@ class TRANSFORMER(nn.Module):
 
         # zero vectors for padding dimension
         for idx in range(len(spec_stacked)):
-            attn_mask[idx][spec_len[idx]:] = 0 
+            attn_mask[idx][spec_len[idx]:] = 0
 
         if self.spec_aug and self.spec_aug_prev and self.model.training:
             spec_stacked = spec_augment(spec_stacked, mask_T=70, mask_F=4, num_T=2, num_F=2, p=1.0) # (batch_size, seq_len, feature_dim * dr)
@@ -197,7 +197,7 @@ class TRANSFORMER(nn.Module):
 
 
     def tile_representations(self, reps):
-        """ 
+        """
         Tile up the speech representations to match the amount of input frames.
         Input - encoded_layers shape: (batch_size, sequence_length, hidden_size)
         Output - tiled_encoded_layers shape: (batch_size, sequence_length * downsample_rate, hidden_size)
@@ -208,7 +208,7 @@ class TRANSFORMER(nn.Module):
         tiled_reps = reps.repeat(1, 1, self.dr)
         tiled_reps = tiled_reps.reshape(reps.size(0), reps.size(1)*self.dr, reps.size(2))
         return tiled_reps # (batch_size, sequence_length * downsample_rate, hidden_size)
-        
+
 
     def _forward(self, x):
 
@@ -253,14 +253,14 @@ class TRANSFORMER(nn.Module):
             x = x.permute(0, 2, 1).contiguous() # (B, T, D) -> (B, D, T)
             padding = nn.ReplicationPad1d((left_pad, right_pad))
             x = padding(x)
-            
+
             if self.permute_input: x = x.permute(2, 0, 1).contiguous() # (B, D, T) -> (T, B, D)
             else: x = x.permute(0, 2, 1).contiguous() # (B, D, T) -> (B, T, D)
-        
+
         # If not using a downsampling model, permute to output
         elif self.permute_input:
             x = x.permute(1, 0, 2).contiguous() # (B, T, D) -> (T, B, D)
-        
+
         # else: (B, T, D)
         return x
 
@@ -292,7 +292,7 @@ def get_sinusoid_table(hidden_size):
 
 
 def position_encoding(seq_len, hidden_size):
-    """ position encoding table """     
+    """ position encoding table """
     table = get_sinusoid_table(hidden_size)[:seq_len]
     # no extra CPU and GPU memory allocation
     # after getting the (seq_len, hidden_size) tensor, one should first put
@@ -304,15 +304,15 @@ def position_encoding(seq_len, hidden_size):
 # SPEC AUGMENT #
 ################
 """
-Process training data for the supervised ASR model by 
+Process training data for the supervised ASR model by
 masking to time-steps and channels during training
 which delays overfitting and significantly improves the final accuracy numbers.
 Input:
     `spec`: input real frames, with shape: (batch_size, seq_len, feature_dim)
-    `mask_T`: the time mask parameter T described in the SpecAugment paper, 
+    `mask_T`: the time mask parameter T described in the SpecAugment paper,
               we use default values based on the LD Policy
               (In paper: T=100, we use 70 since we are training on the 100 hr subset only)
-    `mask_F`: the frequency mask parameter F described in the SpecAugment paper, 
+    `mask_F`: the frequency mask parameter F described in the SpecAugment paper,
               we use default values based on the LD Policy
               (In paper: F=27:D=80*3 -> F=4.5:D=40, where D is acoustic dimension)
     `num_T` : the number of time masks applied (In paper: mT=2)
@@ -331,7 +331,7 @@ def spec_augment(spec, mask_T=70, mask_F=4, num_T=2, num_F=2, p=1.0):
 
     with torch.no_grad():
         upper_bound = spec.shape[1] * p # upper bound on the time mask so that a time mask cannot be wider than p times the number of time steps
-        
+
         for idx in range(spec.shape[0]):
 
             # time masking
@@ -369,11 +369,11 @@ class LIN(nn.Module):
         self.out_dim = inp_dim # This attribute is for pytorch-kaldi
         self.linear = nn.Linear(inp_dim, inp_dim)
         self.linear.weight.data.copy_(torch.eye(inp_dim))
-        
+
         self.device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
         self.linear = self.linear.to(self.device)
         self.linear.train()
-        
+
     def forward(self, x):
         x = self.linear(x)
         return x

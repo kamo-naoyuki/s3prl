@@ -21,10 +21,10 @@ from pretrain.bucket_dataset import FeatDataset
 
 
 class ApcAudioDataset(FeatDataset):
-    
-    def __init__(self, extracter, task_config, bucket_size, file_path, sets, 
+
+    def __init__(self, extracter, task_config, bucket_size, file_path, sets,
                  max_timestep=0, libri_root=None, **kwargs):
-        super(ApcAudioDataset, self).__init__(extracter, task_config, bucket_size, file_path, sets, 
+        super(ApcAudioDataset, self).__init__(extracter, task_config, bucket_size, file_path, sets,
                                                    max_timestep, libri_root, **kwargs)
 
     def _load_feat(self, feat_path):

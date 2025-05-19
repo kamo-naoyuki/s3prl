@@ -26,10 +26,10 @@ HALF_BATCHSIZE_TIME = 99999
 
 
 class KaldiAcousticDataset(_KaldiAcousticDataset):
-    
-    def __init__(self, extracter, task_config, bucket_size, file_path, sets, 
+
+    def __init__(self, extracter, task_config, bucket_size, file_path, sets,
                  max_timestep=0, libri_root=None, **kwargs):
-        super(KaldiAcousticDataset, self).__init__(extracter, task_config, bucket_size, file_path, sets, 
+        super(KaldiAcousticDataset, self).__init__(extracter, task_config, bucket_size, file_path, sets,
                                                    max_timestep, libri_root, **kwargs)
 
     def __getitem__(self, index):
@@ -40,12 +40,12 @@ class KaldiAcousticDataset(_KaldiAcousticDataset):
 
 
 class OnlineAcousticDataset(_OnlineAcousticDataset):
-    
-    def __init__(self, extracter, task_config, bucket_size, file_path, sets, 
+
+    def __init__(self, extracter, task_config, bucket_size, file_path, sets,
                  max_timestep=0, libri_root=None, target_level=-25, **kwargs):
-        super(OnlineAcousticDataset, self).__init__(extracter, task_config, bucket_size, file_path, sets, 
+        super(OnlineAcousticDataset, self).__init__(extracter, task_config, bucket_size, file_path, sets,
                                                     max_timestep, libri_root, target_level, **kwargs)
-  
+
     def _process_x_pad_batch(self, x_pad_batch):
         if self.libri_root is not None:
             x_pad_batch = x_pad_batch.unsqueeze(1) # (batch_size, channel=1, seq_len)

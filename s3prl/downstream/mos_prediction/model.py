@@ -49,19 +49,19 @@ class Model(nn.Module):
         else:
             x = self.mean_net_linear(features)
             segment_score = x.squeeze(-1).mean(dim=-1)
-            
+
         if self.mean_net_clipping:
             segment_score = torch.tanh(segment_score) * 2 + 3
-        
+
         if judge_ids is None:
             return segment_score.squeeze(-1)
-        
+
         else:
             time = features.shape[1]
             judge_features = self.judge_embbeding(judge_ids)
             judge_features = torch.stack([judge_features for i in range(time)], dim = 1)
             bias_features = features + judge_features
-            
+
             if self.bias_net_pooling is not None:
                 y = self.bias_net_pooling(bias_features)
                 bias_score = self.bias_net_linear(y)

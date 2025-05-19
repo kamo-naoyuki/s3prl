@@ -84,7 +84,7 @@ class DownstreamExpert(nn.Module):
             self.train_data, self.datarc["data_dir"])
         self.dev_dataset = MOSEIDataset("dev",
             self.dev_data, self.datarc["data_dir"])
-        self.test_dataset = MOSEIDataset("test", 
+        self.test_dataset = MOSEIDataset("test",
             self.test_data, self.datarc["data_dir"])
 
         self.connector = nn.Linear(upstream_dim, self.modelrc["input_dim"])

@@ -27,7 +27,7 @@ MAX_SEQLEN = 3000
 def get_sinusoid_table(hidden_size):
     def cal_angle(position, hid_idx):
         return position / np.power(10000, 2 * (hid_idx // 2) / hidden_size)
-        
+
     def get_posi_angle_vec(position):
         return [cal_angle(position, hid_j) for hid_j in range(hidden_size)]
 
@@ -39,7 +39,7 @@ def get_sinusoid_table(hidden_size):
 
 def fast_position_encoding(seq_len, hidden_size, batch_size=None, padding_idx=None):
     ''' position encoding table '''
-    assert seq_len <= MAX_SEQLEN, f'constant MAX_SEQLEN ({MAX_SEQLEN}) in mam.py < received seq_len ({seq_len})'        
+    assert seq_len <= MAX_SEQLEN, f'constant MAX_SEQLEN ({MAX_SEQLEN}) in mam.py < received seq_len ({seq_len})'
     table = get_sinusoid_table(hidden_size)[:seq_len]
 
     if padding_idx is not None:
@@ -82,7 +82,7 @@ def generate_masked_acoustic_model_data(spec, config):
         spec_len = (spec_target.sum(dim=-1) != 0).long().sum(dim=-1).tolist()
         batch_size = spec_target.shape[0]
         seq_len = spec_target.shape[1]
-        
+
         pos_enc = fast_position_encoding(seq_len, config['position_encoding_size']) # (seq_len, position_encoding_size)
         mask_label = torch.zeros_like(spec_target, dtype=torch.uint8) \
                      if config['mask_proportion'] != 0 or config['mask_frequency'] != 0 \
@@ -98,7 +98,7 @@ def generate_masked_acoustic_model_data(spec, config):
                 offset = torch.arange(consecutive).expand_as(tiled)
                 intervals = tiled + offset
                 return intervals.view(-1)
-            
+
             # time masking
             if config['mask_proportion'] > 0:
                 mask_consecutive = random.randint(config['mask_consecutive_min'], config['mask_consecutive_max'])
@@ -113,7 +113,7 @@ def generate_masked_acoustic_model_data(spec, config):
                     valid_starts = torch.arange(rand_start, valid_start_max + 1, mask_bucket_size)
                     chosen_starts = valid_starts[torch.randperm(len(valid_starts))[:proportion]]
                 chosen_intervals = _starts_to_intervals(chosen_starts, mask_consecutive)
-                
+
                 # determine whether to mask / random / or do nothing to the frame
                 dice = random.random()
                 # mask to zero
@@ -138,9 +138,9 @@ def generate_masked_acoustic_model_data(spec, config):
                 chosen_starts = torch.randperm(spec_masked.shape[2] - rand_bandwidth)[:1]
                 chosen_intervals = _starts_to_intervals(chosen_starts, rand_bandwidth)
                 spec_masked[idx, :, chosen_intervals] = 0
-                
+
                 # the gradients will be calculated on chosen frames
-                mask_label[idx, :spec_len[idx], chosen_intervals] = 1   
+                mask_label[idx, :spec_len[idx], chosen_intervals] = 1
 
         if config['noise_proportion'] > 0:
             # noise augmentation
@@ -148,7 +148,7 @@ def generate_masked_acoustic_model_data(spec, config):
             if dice < config['noise_proportion']:
                 noise_sampler = torch.distributions.Normal(0, 0.2)
                 spec_masked += noise_sampler.sample(spec_masked.shape).to(device=spec_masked.device)
-        
+
         valid_batchid = mask_label.view(batch_size, -1).sum(dim=-1).nonzero(as_tuple=False).view(-1)
         spec_masked = spec_masked.to(dtype=torch.float32)[valid_batchid]
         pos_enc = pos_enc.to(dtype=torch.float32)

@@ -45,4 +45,3 @@ class AtisDataset(Dataset):
             labels.append(label)
 
         return wavs, labels
-

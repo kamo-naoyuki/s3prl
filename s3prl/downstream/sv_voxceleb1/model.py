@@ -21,16 +21,16 @@ from s3prl.upstream.mockingjay.model import TransformerEncoder
 # MODEL #
 #########
 
-def decide_utter_input_dim(agg_module_name, input_dim, agg_dim):		
-    if agg_module_name =="ASP":		
-        utter_input_dim = input_dim*2		
-    elif agg_module_name == "SP":		
-        # after aggregate to utterance vector, the vector hidden dimension will become 2 * aggregate dimension.		
-        utter_input_dim = agg_dim*2		
-    elif agg_module_name == "MP":		
-        utter_input_dim = agg_dim		
-    else:		
-        utter_input_dim = input_dim		
+def decide_utter_input_dim(agg_module_name, input_dim, agg_dim):
+    if agg_module_name =="ASP":
+        utter_input_dim = input_dim*2
+    elif agg_module_name == "SP":
+        # after aggregate to utterance vector, the vector hidden dimension will become 2 * aggregate dimension.
+        utter_input_dim = agg_dim*2
+    elif agg_module_name == "MP":
+        utter_input_dim = agg_dim
+    else:
+        utter_input_dim = input_dim
     return utter_input_dim
 
 # Pooling Methods
@@ -43,9 +43,9 @@ class MP(nn.Module):
 
     def forward(self, feature_BxTxH, att_mask_BxT, **kwargs):
 
-        ''' 
+        '''
         Arguments
-            feature_BxTxH - [BxTxH]   Acoustic feature with shape 
+            feature_BxTxH - [BxTxH]   Acoustic feature with shape
             att_mask_BxT  - [BxT]     Attention Mask logits
         '''
         agg_vec_list = []
@@ -69,12 +69,12 @@ class AP(nn.Module):
         self.linear = nn.Linear(input_dim, out_dim)
         self.sap_layer = AttentivePooling(out_dim)
         self.act_fn=nn.ReLU()
-    
+
     def forward(self, feature_BxTxH, att_mask_BxT):
 
-        ''' 
+        '''
         Arguments
-            feature_BxTxH - [BxTxH]   Acoustic feature with shape 
+            feature_BxTxH - [BxTxH]   Acoustic feature with shape
             att_mask_BxT  - [BxT]     Attention Mask logits
         '''
         #Encode
@@ -93,12 +93,12 @@ class ASP(nn.Module):
         self.linear = nn.Linear(input_dim, out_dim)
         self.ap_layer = AttentivePooling(out_dim)
 
-    
+
     def forward(self, feature_BxTxH, att_mask_BxT):
 
-        ''' 
+        '''
         Arguments
-            feature_BxTxH - [BxTxH]   Acoustic feature with shape 
+            feature_BxTxH - [BxTxH]   Acoustic feature with shape
             att_mask_BxT  - [BxT]     Attention Mask logits
         '''
         #Encode
@@ -117,12 +117,12 @@ class SP(nn.Module):
 
         # Setup
         self.mp_layer = MP()
-    
+
     def forward(self, feature_BxTxH, att_mask_BxT):
 
-        ''' 
+        '''
         Arguments
-            feature - [BxTxH]   Acoustic feature with shape 
+            feature - [BxTxH]   Acoustic feature with shape
             att_mask- [BxT]     Attention Mask logits
         '''
         #Encode
@@ -143,7 +143,7 @@ class SP(nn.Module):
 
 class AttentivePooling(nn.Module):
     """
-    Implementation of Attentive Pooling 
+    Implementation of Attentive Pooling
     """
     def __init__(self, input_dim, **kwargs):
         super(AttentivePooling, self).__init__()
@@ -155,10 +155,10 @@ class AttentivePooling(nn.Module):
         """
         input:
         batch_rep : size (B, T, H), B: batch size, T: sequence length, H: Hidden dimension
-        
+
         attention_weight:
         att_w : size (B, T, 1)
-        
+
         return:
         utter_rep: size (B, H)
         """
@@ -174,13 +174,13 @@ class AttentivePooling(nn.Module):
 class Model(nn.Module):
     def __init__(self, input_dim, agg_dim, agg_module_name, module_name, utterance_module_name, hparams):
         super(Model, self).__init__()
-        
+
         # support for XVector(standard architecture), Identity (do nothing)
         # Framewise FeatureExtractor
         extractor_config = {**hparams, **{"input_dim": input_dim}}
         self.framelevel_feature_extractor= eval(module_name)(**extractor_config)
 
-        # agg_module: 
+        # agg_module:
         # current support:
         # [ "AP" (Attentive Pooling), "MP" (Mean Pooling), "SP" (Statistic Pooling), "SAP" (Statistic Attentive Pooling) ]
         agg_module_config = {"out_dim": input_dim, "input_dim": agg_dim}
@@ -193,15 +193,15 @@ class Model(nn.Module):
         self.utterancelevel_feature_extractor= eval(utterance_module_name)(**utterance_extractor_config)
 
     def forward(self, features_BxTxH, att_mask_BxT):
-        
+
         features_BxTxH = self.framelevel_feature_extractor(features_BxTxH, att_mask_BxT[:,None,None])
         utterance_vector = self.agg_method(features_BxTxH, att_mask_BxT)
         utterance_vector = self.utterancelevel_feature_extractor(utterance_vector)
-        
+
         return utterance_vector
-    
+
     def inference(self, features_BxTxH, att_mask_BxT):
-        
+
         features_BxTxH = self.framelevel_feature_extractor(features_BxTxH, att_mask_BxT[:,None,None])
         utterance_vector = self.agg_method(features_BxTxH, att_mask_BxT)
         utterance_vector = self.utterancelevel_feature_extractor.inference(utterance_vector)
@@ -221,7 +221,7 @@ class UtteranceExtractor(nn.Module):
         hid_BxH = self.act_fn(hid_BxH)
 
         return hid_BxH
-    
+
     def inference(self, feature_BxH):
         hid_BxH = self.linear1(feature_BxH)
         hid_BxH = self.act_fn(hid_BxH)
@@ -240,14 +240,14 @@ class UtteranceIdentity(nn.Module):
         hid_BxH = self.act_fn(hid_BxH)
 
         return hid_BxH
-    
+
     def inference(self, x_BxH):
         hid_BxH = self.act_fn(x_BxH)
         hid_BxH = self.linear(hid_BxH)
         hid_BxH = self.act_fn(hid_BxH)
 
         return hid_BxH
-    
+
 
 class Identity(nn.Module):
     def __init__(self, **kwargs):
@@ -297,7 +297,7 @@ class AMSoftmaxLoss(nn.Module):
         assert len(x_BxH) == len(labels_B)
         assert torch.min(labels_B) >= 0
         assert torch.max(labels_B) < self.speaker_num
-        
+
         W = F.normalize(self.W, dim=0)
 
         x_BxH = F.normalize(x_BxH, dim=1)
@@ -310,7 +310,7 @@ class AMSoftmaxLoss(nn.Module):
         return -torch.mean(L)
 
 class SoftmaxLoss(nn.Module):
-    
+
     def __init__(self, hidden_dim, speaker_num, **kwargs):
         '''
         Softmax Loss
@@ -326,7 +326,7 @@ class SoftmaxLoss(nn.Module):
         '''
         logits_BxSpn = self.fc(x_BxH)
         loss = self.loss(logits_BxSpn, labels_B)
-        
+
         return loss
 
 class AAMSoftmaxLoss(nn.Module):
@@ -335,7 +335,7 @@ class AAMSoftmaxLoss(nn.Module):
         import math
 
         self.test_normalize = True
-        
+
         self.m = m
         self.s = s
         self.speaker_num = speaker_num
@@ -357,7 +357,7 @@ class AAMSoftmaxLoss(nn.Module):
         assert len(x_BxH) == len(labels_B)
         assert torch.min(labels_B) >= 0
         assert torch.max(labels_B) < self.speaker_num
-        
+
         # cos(theta)
         cosine = F.linear(F.normalize(x_BxH), F.normalize(self.weight))
         # cos(theta + m)
@@ -379,10 +379,10 @@ class AAMSoftmaxLoss(nn.Module):
         return loss
 
 class TDNN(nn.Module):
-        
+
     def __init__(
-                    self, 
-                    input_dim=23, 
+                    self,
+                    input_dim=23,
                     output_dim=512,
                     context_size=5,
                     stride=1,
@@ -394,7 +394,7 @@ class TDNN(nn.Module):
         TDNN as defined by https://www.danielpovey.com/files/2015_interspeech_multisplice.pdf
         Affine transformation not applied globally to all frames but smaller windows with local context
         batch_norm: True to include batch normalisation after the non linearity
-        
+
         Context size and dilation determine the frames selected
         (although context size is not really defined in the traditional sense)
         For example:
@@ -410,14 +410,14 @@ class TDNN(nn.Module):
         self.dilation = dilation
         self.dropout_p = dropout_p
         self.batch_norm = batch_norm
-      
+
         self.kernel = nn.Linear(input_dim*context_size, output_dim)
         self.nonlinearity = nn.ReLU()
         if self.batch_norm:
             self.bn = nn.BatchNorm1d(output_dim)
         if self.dropout_p:
             self.drop = nn.Dropout(p=self.dropout_p)
-        
+
     def forward(self, x_BxTxH):
         '''
         input: size (batch B, seq_len T, input_features H)
@@ -430,9 +430,9 @@ class TDNN(nn.Module):
 
         # Unfold input into smaller temporal contexts
         x_BxTxH = F.unfold(
-                        x_BxTxH, 
-                        (self.context_size, self.input_dim), 
-                        stride=(1,self.input_dim), 
+                        x_BxTxH,
+                        (self.context_size, self.input_dim),
+                        stride=(1,self.input_dim),
                         dilation=(self.dilation,1)
                     )
 
@@ -440,7 +440,7 @@ class TDNN(nn.Module):
         x_BxTxH = x_BxTxH.transpose(1,2)
         x_BxTxH = self.kernel(x_BxTxH)
         x_BxTxH = self.nonlinearity(x_BxTxH)
-        
+
         if self.dropout_p:
             x_BxTxH = self.drop(x_BxTxH)
 

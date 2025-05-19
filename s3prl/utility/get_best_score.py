@@ -29,7 +29,7 @@ import sys
 def main():
 
     log_file = str(sys.argv[1])
-    
+
     if len(sys.argv) == 4:
         rank_by = str(sys.argv[2])
         target = str(sys.argv[3])
@@ -44,7 +44,7 @@ def main():
 
     with open(log_file) as f:
         lines = f.readlines()
-        
+
         for line in lines:
             line = line.strip('\n').split('/')[-1].split('|')
             if len(line) < 3: continue
@@ -57,10 +57,10 @@ def main():
                 if compare(score, best_record[0], large_or_small):
                     best_record[0] = score # the score to rank by
                     best_record[1] = step
-            
+
             elif step == best_record[1] and target in prefix:
                 best_record[2] = score # the score you want to find
-    
+
     print(f'The best {rank_by} score {best_record[0]} at step {best_record[1]}, accoupanied by this {target} score {best_record[2]}')
 
 

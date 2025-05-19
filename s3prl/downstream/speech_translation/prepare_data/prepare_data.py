@@ -9,7 +9,7 @@ from multiprocessing import Pool
 def verbose(args, text):
     if args.verbose:
         print(text)
-    
+
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
@@ -58,7 +58,7 @@ if __name__ == '__main__':
             'tgt_text': line[args.tgt_key],
         }
         data.append(item)
-    
+
     data.sort(key=lambda x: x['n_frames'])
 
     with open(args.output_tsv, 'w') as f:

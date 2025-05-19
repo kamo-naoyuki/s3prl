@@ -36,7 +36,7 @@ def boolean_string(s):
 # PREPROCESS CONFIGURATIONS #
 #############################
 def get_preprocess_args():
-    
+
     parser = argparse.ArgumentParser(description='preprocess arguments for LibriSpeech dataset.')
 
     parser.add_argument('--data_path', default='./data/LibriSpeech', type=str, help='Path to raw LibriSpeech dataset')
@@ -58,7 +58,7 @@ def get_preprocess_args():
 # ACOUSTIC PREPROCESS #
 #######################
 def acoustic_preprocess(args, tr_set, dim):
-    
+
     for s in tr_set:
         print('')
         print('Preprocessing', s, 'data...', end='')

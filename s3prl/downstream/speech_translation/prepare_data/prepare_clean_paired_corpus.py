@@ -29,10 +29,10 @@ if __name__ == '__main__':
         print(f'output file: {args.output_tsv} exists, use -o/--overwrite to force overwrite')
         exit(1)
     verbose(args, args)
-    
+
     if args.ratio >= 0:
         assert args.min >= 1, "minimum length should >= 1 with ratio test"
-    
+
     lines = []
     with open(args.input_tsv, 'r') as f:
         reader = csv.DictReader(
@@ -60,7 +60,7 @@ if __name__ == '__main__':
             if src_len > args.max or tgt_len > args.max:
                 verbose(args, f"{line} text part too long, skip")
                 continue
-        
+
         if args.min >= 0:
             if src_len < args.min or tgt_len < args.min:
                 verbose(args, f"{line} text part too short, skip")

@@ -38,7 +38,7 @@ class Runner():
     def __init__(self, args, config):
         self.args = args
         self.config = config
-        self.logger = SummaryWriter(args.expdir)                                                 
+        self.logger = SummaryWriter(args.expdir)
 
         self.init_ckpt = torch.load(self.args.init_ckpt, map_location='cpu') if self.args.init_ckpt else {}
         self.upstream = self._get_upstream()
@@ -50,7 +50,7 @@ class Runner():
             self.args.upstream_config = init_upstream
         module_path = f'pretrain.{self.args.upstream}.pretrain_expert'
         Upstream = getattr(importlib.import_module(module_path), 'UpstreamPretrainExpert')
-        upstream = Upstream(self.config['pretrain_expert']['datarc'], 
+        upstream = Upstream(self.config['pretrain_expert']['datarc'],
                             self.args.upstream_config,
                             self.args.device,
                             self.args.multi_gpu).to(self.args.device)
@@ -73,7 +73,7 @@ class Runner():
 
     def _get_optimizer(self, model_params):
         optimizer = get_optimizer(
-            model_params, 
+            model_params,
             self.config['runner']['total_steps'],
             self.config['optimizer']
         )
@@ -113,7 +113,7 @@ class Runner():
 
         # set epoch
         n_epochs = self.config['runner']['n_epochs']
-        if n_epochs > 0: 
+        if n_epochs > 0:
             total_steps = int(n_epochs * len(dataloader.dataset) / gradient_accumulate_steps)
             print(f'[Runner] - Training for {n_epochs} epochs, which is equivalent to {total_steps} steps')
         else:
@@ -187,12 +187,12 @@ class Runner():
                 # record loss
                 all_loss += loss.item()
                 del loss
-                
+
                 # whether to accumulate gradient
                 backward_steps += 1
                 if backward_steps % gradient_accumulate_steps > 0:
                     continue
-                    
+
                 # unscale
                 if amp:
                     scaler.unscale_(optimizer)
@@ -257,14 +257,14 @@ class Runner():
 
                     if scheduler:
                         all_states['Scheduler'] = scheduler.state_dict()
-                    
+
                     name = f'states-epoch-{n_epochs}.ckpt' if pbar.n == pbar.total -1 and n_epochs > 0 else \
                            f'states-{global_step}.ckpt'
                     save_path = os.path.join(self.args.expdir, name)
                     tqdm.write(f'[Runner] - Save the checkpoint to: {save_path}')
                     torch.save(all_states, save_path)
-                
-                all_loss = 0      
+
+                all_loss = 0
                 pbar.update(1)
 
         pbar.close()

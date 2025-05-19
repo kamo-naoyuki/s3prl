@@ -150,11 +150,11 @@ def split_dataset(
     root_dir: Union[str, Path], max_uttr_per_class=2 ** 27 - 1
 ) -> Tuple[List[Tuple[str, str]], List[Tuple[str, str]]]:
     """Split Speech Commands into 3 set.
-    
+
     Args:
         root_dir: speech commands dataset root dir
         max_uttr_per_class: predefined value in the original paper
-    
+
     Return:
         train_list: [(class_name, audio_path), ...]
         valid_list: as above

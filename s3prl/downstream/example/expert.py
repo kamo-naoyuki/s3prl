@@ -29,7 +29,7 @@ class DownstreamExpert(nn.Module):
             upstream_rate: int
                 160: for upstream with 10 ms per frame
                 320: for upstream with 20 ms per frame
-            
+
             downstream_expert: dict
                 The 'downstream_expert' field specified in your downstream config file
                 eg. downstream/example/config.yaml
@@ -41,7 +41,7 @@ class DownstreamExpert(nn.Module):
             **kwargs: dict
                 All the arguments specified by the argparser in run_downstream.py
                 and all the other fields in config.yaml, in case you need it.
-                
+
                 Note1. Feel free to add new argument for __init__ as long as it is
                 a command-line argument or a config field. You can check the constructor
                 code in downstream/runner.py
@@ -199,7 +199,7 @@ class DownstreamExpert(nn.Module):
 
             total_batch_num:
                 The total amount of batches in the dataloader
-        
+
         Return:
             a list of string
                 Each string is a filename we wish to use to save the current model

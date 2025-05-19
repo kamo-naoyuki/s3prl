@@ -47,7 +47,7 @@ class UpstreamPretrainExpert(nn.Module):
             print('[UpstreamPretrainExpert] - Using upstream config from the previous experiment.')
         else:
             raise ValueError
-        
+
         if 'libri_root' in self.datarc and 'kaldi' in self.upstream_config['audio']:
             print('[UpstreamPretrainExpert] - Using kaldi feature extracter, on-the-fly feature extraction')
             extracter, input_dim, _ = get_extracter(self.upstream_config['audio'])
@@ -122,19 +122,19 @@ class UpstreamPretrainExpert(nn.Module):
         Args:
             data:
                 [spec_masked, pos_enc, mask_label, attn_mask, spec_target]
-            
+
             records:
                 defaultdict(list), by appending contents into records,
                 these contents can be averaged and logged on Tensorboard
                 later by self.log_records every log_step
 
         Return:
-            loss        
+            loss
         """
 
         spec_masked, pos_enc, mask_label, attn_mask, spec_target = data[0], data[1], data[2], data[3], data[4]
         spec_masked = spec_masked.to(self.device)
-        
+
         if pos_enc.dim() == 3:
             # pos_enc: (batch_size, seq_len, hidden_size)
             # GPU memory need (batch_size * seq_len * hidden_size)
@@ -147,23 +147,23 @@ class UpstreamPretrainExpert(nn.Module):
         mask_label = mask_label.to(self.device)
         attn_mask = attn_mask.to(self.device)
         spec_target = spec_target.to(self.device)
-        
+
         loss, pred_spec = self.model(spec_masked, pos_enc, mask_label, attn_mask, spec_target)
 
         if global_step % log_step == 0:
             spec_list = [spec_masked, pred_spec, spec_target]
             name_list = ['mask_spec', 'pred_spec', 'true_spec']
-            
+
             for i in range(len(spec_list)):
                 spec = plot_spectrogram_to_numpy(spec_list[i][0].data.cpu().numpy())
                 records[name_list[i]] = spec
-            
+
         return loss, records
 
     # interface
     def on_before_zero_grad(self):
         pass
-    
+
     # interface
     def log_records(self, records, logger, prefix, global_step, **kwargs):
         """

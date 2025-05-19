@@ -21,7 +21,7 @@ class DownstreamExpert(PhoneExpert):
 
     def __init__(self, upstream_dim, downstream_expert, **kwargs):
         super(DownstreamExpert, self).__init__(upstream_dim, downstream_expert, **kwargs)
-        
+
         delattr(self, 'model')
         model_cls = eval(self.modelrc['select'])
         model_conf = self.modelrc[self.modelrc['select']]

@@ -47,7 +47,7 @@ class DownstreamExpert(nn.Module):
         self.train_dataset = SpeakerClassifiDataset('train', root_dir, self.datarc['meta_data'], self.datarc['max_timestep'])
         self.dev_dataset = SpeakerClassifiDataset('dev', root_dir, self.datarc['meta_data'])
         self.test_dataset = SpeakerClassifiDataset('test', root_dir, self.datarc['meta_data'])
-        
+
         model_cls = eval(self.modelrc['select'])
         model_conf = self.modelrc.get(self.modelrc['select'], {})
         self.projector = nn.Linear(upstream_dim, self.modelrc['projector_dim'])
@@ -62,7 +62,7 @@ class DownstreamExpert(nn.Module):
     def _get_train_dataloader(self, dataset):
         sampler = DistributedSampler(dataset) if is_initialized() else None
         return DataLoader(
-            dataset, batch_size=self.datarc['train_batch_size'], 
+            dataset, batch_size=self.datarc['train_batch_size'],
             shuffle=(sampler is None), sampler=sampler,
             num_workers=self.datarc['num_workers'],
             collate_fn=dataset.collate_fn

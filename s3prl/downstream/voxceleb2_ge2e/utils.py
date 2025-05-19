@@ -1,4 +1,4 @@
-import numpy as np 
+import numpy as np
 import pickle
 from scipy.optimize import brentq
 from scipy.interpolate import interp1d

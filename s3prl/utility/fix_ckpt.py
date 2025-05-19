@@ -9,7 +9,7 @@
 
 """
 Usage:
-This .py helps fix the `torch serialization ModuleNotFoundError` issue, 
+This .py helps fix the `torch serialization ModuleNotFoundError` issue,
 which occurs when the model.py directory is changed.
 Make sure you understand exactly what this script does before proceeding.
 """

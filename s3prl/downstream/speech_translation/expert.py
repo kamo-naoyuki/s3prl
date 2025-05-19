@@ -39,7 +39,7 @@ class DownstreamExpert(nn.Module):
             upstream_rate: int
                 160: for upstream with 10 ms per frame
                 320: for upstream with 20 ms per frame
-            
+
             downstream_expert: dict
                 The 'downstream_expert' field specified in your downstream config file
                 eg. downstream/example/config.yaml
@@ -51,7 +51,7 @@ class DownstreamExpert(nn.Module):
             **kwargs: dict
                 All the arguments specified by the argparser in run_downstream.py
                 and all the other fields in config.yaml, in case you need it.
-                
+
                 Note1. Feel free to add new argument for __init__ as long as it is
                 a command-line argument or a config field. You can check the constructor
                 code in downstream/runner.py
@@ -94,7 +94,7 @@ class DownstreamExpert(nn.Module):
 
         self.generator = self.task.build_generator([self.model], Namespace(**downstream_expert['generatorrc']))
         self.batch_itr = {}
-        
+
         self.use_asr = downstream_expert['taskrc']['use_asr']
 
         if self.use_asr:
@@ -103,11 +103,11 @@ class DownstreamExpert(nn.Module):
             self.asr_datarc = rc['datarc']
             self.asr_weight = rc['weight']
             self.asr_dict = Dictionary.load(f"{self.data_dir}/{rc['vocab_file']}")
-            
+
             asr_bperc = rc['bpe_tokenizer'].copy()
-            asr_bperc['sentencepiece_model'] = f"{self.data_dir}/{asr_bperc['sentencepiece_model']}" 
+            asr_bperc['sentencepiece_model'] = f"{self.data_dir}/{asr_bperc['sentencepiece_model']}"
             self.asr_bpe = encoders.build_bpe(Namespace(**asr_bperc))
-            
+
             self.asr_task = S3prl_SpeechToTextTask.setup_task(Namespace(**downstream_expert['taskrc']))
             self.asr_dict.add_symbol('<blank>')
             self.asr_task.tgt_dict = self.asr_dict
@@ -140,10 +140,10 @@ class DownstreamExpert(nn.Module):
 
         # load dataset
         if data_split not in self.batch_itr:
-            
+
             # dataset will truncate the input wav according to model's max_position
             self.task.load_dataset(split=data_split, max_feature_len=self.max_positions)
-            
+
             # it must not have invalid_inputs due to truncation
             self.batch_itr[data_split] = self.task.get_batch_iterator(
                 self.task.dataset(data_split),
@@ -262,21 +262,21 @@ class DownstreamExpert(nn.Module):
 
         if self.downsample_ratio == 1:
             return features
-        
+
         new_features = []
-        
+
         for feature in features:
             if self.downsample_method == 'drop':
 
                 feature = feature[::self.downsample_ratio]
-            
+
             elif self.downsample_method == 'concat':
-                
+
                 N = feature.size(0) % self.downsample_ratio
                 if N != 0:
                     feature = F.pad(feature, (0, 0, 0, self.downsample_ratio-N))
                 feature = feature.view(feature.size(0)//self.downsample_ratio, feature.size(1)*self.downsample_ratio)
-            
+
             elif self.downsample_method == 'average':
 
                 N = feature.size(0) % self.downsample_ratio
@@ -286,15 +286,15 @@ class DownstreamExpert(nn.Module):
 
             else:
                 raise NotImplementedError
-            
+
             new_features.append(feature)
-        
+
         return new_features
 
     def _create_asr_input_dict(self, input_dict, mode):
 
         if mode not in self.additional_dataset:
-            
+
             dataset = AdditionalDataset.from_tsv(
                 f'{self.data_dir}/{self.datarc[mode]}.tsv',
                 self.asr_datarc['key'],
@@ -320,7 +320,7 @@ class DownstreamExpert(nn.Module):
         log_prob = self.asr_head(hidden).log_softmax(2)
 
         hidden_length = self.model.encoder.subsample.get_out_seq_lens_tensor(input_dict['net_input']['src_lengths'])
-        
+
         targets = input_dict['target']
         target_lengths = input_dict['target_lengths']
 
@@ -358,7 +358,7 @@ class DownstreamExpert(nn.Module):
         return hyps, refs
 
     def _inference_step_asr(self, input_dict):
-        
+
         encoder_out = self.model.encoder(
             src_tokens=input_dict['net_input']['src_tokens'], src_lengths=input_dict['net_input']['src_lengths']
         )
@@ -367,7 +367,7 @@ class DownstreamExpert(nn.Module):
         logit = self.asr_head(hidden)
 
         predict = logit.argmax(dim=-1).transpose(0, 1)
-        
+
         hyps = []
         refs = []
 
@@ -383,7 +383,7 @@ class DownstreamExpert(nn.Module):
             refs.append(
                 self._decode(input_dict['target'][i], self.asr_dict)
             )
-        
+
         return hyps, refs
 
     def _metric(self, hyps, refs):
@@ -449,7 +449,7 @@ class DownstreamExpert(nn.Module):
 
             total_batch_num:
                 The total amount of batches in the dataloader
-        
+
         Return:
             a list of string
                 Each string is a filename we wish to use to save the current model
@@ -500,8 +500,8 @@ class DownstreamExpert(nn.Module):
 
             if bleu.score > self.best_score and mode == 'dev':
                 self.best_score = torch.ones(1) * bleu.score
-                save_names.append(f'{mode}-best.ckpt') 
-            
+                save_names.append(f'{mode}-best.ckpt')
+
             with open(f'{self.expdir}/{self.output_prefix}-st-{mode}.tsv', 'w') as f:
                 print('utt_id', 'hyp', 'ref', sep='\t', file=f)
                 results = list(zip(records['ids'], records['hyps'], records['refs'], records['utt_ids']))
@@ -533,5 +533,5 @@ class DownstreamExpert(nn.Module):
                         print(utt_id, hyp, ref, sep='\t', file=f)
 
                 tqdm.write(f'[cer]:{cer}, [wer]:{wer}')
-        
+
         return save_names

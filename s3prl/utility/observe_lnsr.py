@@ -27,7 +27,7 @@ def compute_lnsr(real, adve, norm_L2=True):
 
 
 def run_over_layer(layer, real_todo, adve_todo):
-    
+
     if layer != 'feature':
         options = {
             'ckpt_file'     : 'result/result_transformer/mockingjay/LinearLarge-libri/model-500000.ckpt',
@@ -50,13 +50,13 @@ def run_over_layer(layer, real_todo, adve_todo):
         min_len = min(r.shape[0], a.shape[0])
 
         if layer == 'feature':
-            l2 = compute_lnsr(r[:min_len].data.cpu().numpy(), 
+            l2 = compute_lnsr(r[:min_len].data.cpu().numpy(),
                               a[:min_len].data.cpu().numpy(),
                               norm_L2=True)
         else:
             r_hidd = mockingjay(r[:min_len])
             a_hidd = mockingjay(a[:min_len])
-            l2 = compute_lnsr(r_hidd.data.cpu().numpy(), 
+            l2 = compute_lnsr(r_hidd.data.cpu().numpy(),
                               a_hidd.data.cpu().numpy(),
                               norm_L2=True)
         episode.append(l2)
@@ -69,7 +69,7 @@ def main():
     data_path = 'data/adversarial/' # this can be downloaded from the S3PRL google drive
     data_type = ['fgsm_8.0', 'fgsm_16.0', 'pgd_8.0', 'pgd_16.0']
     data_type = data_type[0] # select data type here
-    
+
     real_data = os.path.join(data_path, 'original')
     adve_data = os.path.join(data_path, data_type)
     real_todo = sorted(list(Path(real_data).rglob("*.npy")))

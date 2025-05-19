@@ -40,7 +40,7 @@ def _calculate_asv_score(model, file_list, gt_root, threshold):
     for i, cvt_wav_path in enumerate(tqdm(file_list)):
         basename = get_basename(cvt_wav_path)
         trgspk, number = get_trgspk_and_number(basename)
-        
+
         # get ground truth target wav path
         gt_wav_path = os.path.join(gt_root, trgspk, number + ".wav")
 
@@ -59,7 +59,7 @@ def _calculate_asr_score(model, device, file_list, groundtruths):
         basename = get_basename(cvt_wav_path)
         _, number = get_trgspk_and_number(basename)
         groundtruth = groundtruths[number[1:]] # get rid of the first character "E"
-        
+
         # load waveform
         wav, _ = librosa.load(cvt_wav_path, sr=16000)
 
@@ -74,7 +74,7 @@ def _calculate_asr_score(model, device, file_list, groundtruths):
         for k in keys:
             c_results[k] += c_result[k]
             w_results[k] += w_result[k]
-  
+
     # calculate over whole set
     def er(r):
         return float(r["substitutions"] + r["deletions"] + r["insertions"]) \
@@ -91,7 +91,7 @@ def _calculate_mcd_f0(file_list, gt_root, f0_all, results):
         trgspk, number = get_trgspk_and_number(basename)
         f0min = f0_all[trgspk]["f0min"]
         f0max = f0_all[trgspk]["f0max"]
-        
+
         # get ground truth target wav path
         gt_wav_path = os.path.join(gt_root, trgspk, number + ".wav")
 
@@ -120,13 +120,13 @@ def main():
     args = get_parser().parse_args()
 
     #trgspk = args.trgspk
-    task = args.task 
+    task = args.task
     gt_root = os.path.join(args.data_root, "vcc2020")
     f0_path = os.path.join(args.data_root, "f0.yaml")
     threshold_path = os.path.join(args.data_root, "thresholds.yaml")
     transcription_path = os.path.join(args.data_root, "vcc2020", "prompts", "Eng_transcriptions.txt")
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        
+
     # load f0min and f0 max
     with open(f0_path, 'r') as f:
         f0_all = yaml.load(f, Loader=yaml.FullLoader)
@@ -181,7 +181,7 @@ def main():
 
     # calculate error rates
     ers, cer, wer = _calculate_asr_score(asr_model, device, converted_files, groundtruths)
-    
+
     ##############################
 
     if task == "task1":
@@ -207,24 +207,24 @@ def main():
                 p.join()
 
             results = sorted(results, key=lambda x:x[0])
-            results = [result + ers[result[0]] + [accept_results[result[0]]] for result in results] 
+            results = [result + ers[result[0]] + [accept_results[result[0]]] for result in results]
     else:
         results = []
         for f in converted_files:
             basename = get_basename(f)
             results.append([basename] + ers[basename] + [accept_results[basename]])
-        
+
     # write to log
     log_path = args.log_path if args.log_path else os.path.join(args.wavdir, f"obj_{args.samples}samples.log")
     with open(log_path, "w") as f:
-        
+
         # average result
         if task == "task1":
             mMCD = np.mean(np.array([result[1] for result in results]))
             mf0RMSE = np.mean(np.array([result[2] for result in results]))
             mf0CORR = np.mean(np.array([result[3] for result in results]))
             mDDUR = np.mean(np.array([result[4] for result in results]))
-        mCER = cer 
+        mCER = cer
         mWER = wer
         mACCEPT = accept_rate
 

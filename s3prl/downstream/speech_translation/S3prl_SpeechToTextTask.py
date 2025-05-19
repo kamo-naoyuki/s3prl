@@ -33,7 +33,7 @@ class S3prl_SpeechToTextTask(SpeechToTextTask):
             upstream_rate = self.upstream_rate,
             max_feature_len = max_feature_len,
         )
-    
+
     def build_model(self, args, input_dim):
         args.input_feat_per_channel = input_dim
         args.input_channels = self.data_cfg.input_channels
@@ -79,10 +79,10 @@ class S3prl_SpeechToTextDatasetCreator(SpeechToTextDatasetCreator):
             speakers.extend([ss.get(cls.KEY_SPEAKER, cls.DEFAULT_SPEAKER) for ss in s])
             src_langs.extend([ss.get(cls.KEY_SRC_LANG, cls.DEFAULT_LANG) for ss in s])
             tgt_langs.extend([ss.get(cls.KEY_TGT_LANG, cls.DEFAULT_LANG) for ss in s])
-            
+
             # sample rate
             srs.extend([int(ss.get(cls.KEY_SAMPLE_RATE, cls.DEFAULT_SAMPLE_RATE)) for ss in s])
-        
+
         return S3prl_SpeechToTextDataset(
             split_name,
             is_train_split,
@@ -126,7 +126,7 @@ class S3prl_SpeechToTextDatasetCreator(SpeechToTextDatasetCreator):
         tsv_path = op.join(root, f"{split}.tsv")
         if not op.isfile(tsv_path):
             raise FileNotFoundError(f"Dataset not found: {tsv_path}")
-        
+
         with open(tsv_path) as f:
             reader = csv.DictReader(
                 f,
@@ -158,7 +158,7 @@ class S3prl_SpeechToTextDataset(SpeechToTextDataset):
     TARGET_RATE = 16000
 
     def __init__(self, *args, srs = Optional[List[int]], upstream_rate = 160, max_feature_len=-1, **kwargs):
-        
+
         super().__init__(*args, **kwargs)
 
         self.srs = srs

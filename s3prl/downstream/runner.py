@@ -201,7 +201,7 @@ class Runner():
 
     def _get_optimizer(self, model_params):
         optimizer = get_optimizer(
-            model_params, 
+            model_params,
             self.config['runner']['total_steps'],
             self.config['optimizer']
         )
@@ -420,7 +420,7 @@ class Runner():
             tempdir = tempfile.mkdtemp()
             logger = SummaryWriter(tempdir)
 
-        # fix seed to guarantee the same evaluation protocol across steps 
+        # fix seed to guarantee the same evaluation protocol across steps
         random.seed(self.args.seed)
         np.random.seed(self.args.seed)
         torch.manual_seed(self.args.seed)
@@ -512,7 +512,7 @@ class Runner():
             organization = os.environ.get("HF_USERNAME")
         huggingface_token = HfFolder.get_token()
         print(f"[Runner] - Organisation to push fine-tuned model to: {organization}")
-        
+
         # Extract upstream repository metadata
         if self.args.hub == "huggingface":
             model_info = HfApi().model_info(self.args.upstream, token=huggingface_token)

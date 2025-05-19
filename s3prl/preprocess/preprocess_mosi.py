@@ -156,13 +156,13 @@ def acoustic_preprocess(args, dim):
         elif prefix in test_split:
             return 'test'
         else: assert 0, 'Error in preprocess_mosi.py:146'
-    
+
     belong = np.apply_along_axis(lambda file_name: classify(file_name), 1, df['file_path'].values.reshape(-1, 1))
     df.insert(len(df.columns), 'set', belong)
     train_frame = df[df.set == 'train']
     dev_frame = df[df.set == 'dev']
     test_frame = df[df.set == 'test']
-    
+
     # dump csv of all splits
     df.to_csv(os.path.join(output_dir,'all.csv'))
     train_frame.to_csv(os.path.join(output_dir,'train.csv'))
@@ -191,5 +191,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-    

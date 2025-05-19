@@ -15,7 +15,7 @@ def parse_lexicon(line, tokenizer):
 
 
 def read_text(file, word2phonemes, tokenizer):
-    '''Get transcription of target wave file, 
+    '''Get transcription of target wave file,
        it's somewhat redundant for accessing each txt multiplt times,
        but it works fine with multi-thread'''
     src_file = '-'.join(file.split('-')[:-1])+'.trans.txt'
@@ -62,14 +62,14 @@ class LibriPhoneDataset(Dataset):
             split_list = list(Path(join(path, s)).rglob("*.flac"))
             assert len(split_list) > 0, "No data found @ {}".format(join(path,s))
             file_list += split_list
-        
+
         text = []
         for f in tqdm(file_list, desc='word -> phonemes'):
             text.append(read_text(str(f), word2phonemes, tokenizer))
 
         self.file_list, self.text = zip(*[(f_name, txt)
                                           for f_name, txt in sorted(zip(file_list, text), reverse=not ascending, key=lambda x:len(x[1]))])
-    
+
     def __getitem__(self, index):
         if self.bucket_size > 1:
             index = min(len(self.file_list)-self.bucket_size, index)

@@ -20,7 +20,7 @@ def main():
         raise ValueError("Warning: {} already exists, please check!")
     else:
         os.makedirs(output_dir)
-    
+
     if args.part == 'train' or args.part == 'dev':
         dset = "trainset_28spk_wav_16k"
     elif args.part == 'test':

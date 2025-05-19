@@ -31,7 +31,7 @@ class SeparationDataset(Dataset):
         n_fft=512,
         hop_length=320,
         win_length=512,
-        window='hann', 
+        window='hann',
         center=True,
     ):
         super(SeparationDataset, self).__init__()
@@ -111,7 +111,7 @@ class SeparationDataset(Dataset):
         src_path = self.reco2path[reco][self.src[0]]
         src_samp, rate = librosa.load(src_path, sr=None)
         assert rate == self.rate
-        src_feat = np.transpose(librosa.stft(src_samp, 
+        src_feat = np.transpose(librosa.stft(src_samp,
             n_fft=self.n_fft,
             hop_length = self.hop_length,
             win_length = self.win_length,
@@ -123,7 +123,7 @@ class SeparationDataset(Dataset):
             tgt_path = self.reco2path[reco][self.tgt[j]]
             tgt_samp, rate = librosa.load(tgt_path, sr=None)
             assert rate == self.rate
-            tgt_feat = np.transpose(librosa.stft(tgt_samp, 
+            tgt_feat = np.transpose(librosa.stft(tgt_samp,
                 n_fft=self.n_fft,
                 hop_length = self.hop_length,
                 win_length = self.win_length,

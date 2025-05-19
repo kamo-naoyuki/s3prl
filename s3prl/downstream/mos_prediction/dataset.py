@@ -54,16 +54,16 @@ class VCC18SegmentalDataset(Dataset):
         segment_judge_ids = []
         for i in range(len(prefix_sums)-1):
             segment_judge_ids.extend([judge_ids[i]] * (prefix_sums[i+1]-prefix_sums[i]))
-        
+
         return (
             torch.stack(flattened_wavs_segments),
             prefix_sums,
             torch.FloatTensor(means),
             system_names,
-            torch.FloatTensor(moss), 
+            torch.FloatTensor(moss),
             torch.LongTensor(segment_judge_ids)
         )
-    
+
     def gen_idtable(self, idtable_path):
         if idtable_path == '':
             idtable_path = './idtable.pkl'
@@ -121,7 +121,7 @@ class VCC16SegmentalDataset(Dataset):
             prefix_sums,
             None,
             system_names,
-            None, 
+            None,
             None,
         )
 

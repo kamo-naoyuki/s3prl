@@ -8,7 +8,7 @@ import pickle
 import tqdm
 import torch
 import torchaudio
-import numpy as np 
+import numpy as np
 from torch import nn
 from pathlib import Path
 from sox import Transformer
@@ -32,7 +32,7 @@ class SpeakerVerifi_train(Dataset):
         self.roots = file_path
         self.root_key = key_list
         self.max_timestep = max_timestep
-        self.vad_c = vad_config 
+        self.vad_c = vad_config
         self.dataset = []
         self.all_speakers = []
 
@@ -67,13 +67,13 @@ class SpeakerVerifi_train(Dataset):
 
     def __len__(self):
         return len(self.dataset)
-    
+
     def __getitem__(self, idx):
         path = self.dataset[idx]
         wav, _ = apply_effects_file(str(path), EFFECTS)
         wav = wav.squeeze(0)
         length = wav.shape[0]
-        
+
         if self.max_timestep != None:
             if length > self.max_timestep:
                 start = random.randint(0, int(length - self.max_timestep))
@@ -83,7 +83,7 @@ class SpeakerVerifi_train(Dataset):
         utterance_id = "-".join(tags).replace(".wav", "")
         label = self.all_speakers.index(tags[0])
         return wav.numpy(), utterance_id, label
-        
+
     def collate_fn(self, samples):
         return zip(*samples)
 
@@ -93,10 +93,10 @@ class SpeakerVerifi_test(Dataset):
         self.root = file_path
         self.meta_data = meta_data
         self.necessary_dict = self.processing()
-        self.vad_c = vad_config 
+        self.vad_c = vad_config
         self.dataset = self.necessary_dict['spk_paths']
         self.pair_table = self.necessary_dict['pair_table']
-        
+
     def processing(self):
         pair_table = []
         spk_paths = set()

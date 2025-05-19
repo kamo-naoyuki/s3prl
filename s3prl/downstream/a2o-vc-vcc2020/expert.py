@@ -50,7 +50,7 @@ class Loss(nn.Module):
         if x.shape[1] <= y.shape[1]:
             y = y[:, :x.shape[1]]
             masks = make_non_pad_mask(x_lens).unsqueeze(-1).to(device)
-        
+
         # calculate masked loss
         x_normalized = self.normalize(x)
         y_normalized = self.normalize(y.to(device))
@@ -62,7 +62,7 @@ class Loss(nn.Module):
 class DownstreamExpert(nn.Module):
     def __init__(self, upstream_dim, upstream_rate, downstream_expert, expdir, **kwargs):
         super(DownstreamExpert, self).__init__()
-        
+
         # basic settings
         self.expdir = expdir
         self.upstream_dim = upstream_dim
@@ -113,7 +113,7 @@ class DownstreamExpert(nn.Module):
         if split == 'train':
             if self.train_dataset is None:
                 self.train_dataset = VCC2020Dataset('train', self.trgspk, **self.datarc)
-            return self._get_train_dataloader(self.train_dataset)            
+            return self._get_train_dataloader(self.train_dataset)
         elif split == 'dev':
             self.dev_dataset = VCC2020Dataset('dev', self.trgspk, **self.datarc)
             return self._get_eval_dataloader(self.dev_dataset)
@@ -161,7 +161,7 @@ class DownstreamExpert(nn.Module):
         # padding
         input_feature_lengths = torch.IntTensor([feature.shape[0] for feature in input_features])
         input_features = pad_sequence(input_features, batch_first=True).to(device=device)
-        
+
         # forward model
         if split == "custom_test":
             predicted_features, predicted_feature_lengths = self.model(input_features, input_feature_lengths)
@@ -231,7 +231,7 @@ class DownstreamExpert(nn.Module):
                     self.datarc["fbank_config"]["fs"],
                     (y * np.iinfo(np.int16).max).astype(np.int16),
                 )
-        else:    
+        else:
             loss = torch.FloatTensor(records['loss']).mean().item()
 
             if split in ["dev", "test"]:
